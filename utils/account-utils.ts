@@ -1,4 +1,6 @@
 import { SLP } from "./slp-sdk-utils";
+import { Contract, Instance, Sig } from "cashscript";
+import { BITBOX } from "bitbox-sdk";
 
 const generateMnemonic = () => {
   const mnemonic = SLP.Mnemonic.generate(128);
@@ -14,6 +16,7 @@ const deriveAccount = (
   if (!mnemonic) {
     throw new Error("Mnemonic required to derive account"); // mnemonic = SLP.Mnemonic.generate(128);
   }
+  const bitbox: BITBOX = new BITBOX({ restURL: "https://rest.bitcoin.com/v2" });
 
   const seed = SLP.Mnemonic.toSeed(mnemonic);
   const hdWallet = SLP.HDNode.fromSeed(seed, "mainnet");
@@ -24,8 +27,8 @@ const deriveAccount = (
     `${accountIndex}'/0/${childIndex}`
   );
   const keypair = SLP.HDNode.toKeyPair(child);
-
   const address = SLP.ECPair.toCashAddress(keypair);
+
   return {
     mnemonic,
     keypair,
