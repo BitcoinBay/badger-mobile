@@ -19,10 +19,10 @@ const deriveP2SH = (address: string) => {
     "mainnet"
   );
   const instance: Instance = P2PKH.new(pkh);
-  const address = instance.address;
+  const P2SHaddress = instance.address;
   const artifact = P2PKH.artifact;
 
-  return { address, artifact };
+  return { P2SHaddress, artifact };
 };
 
 export { deriveP2SH };

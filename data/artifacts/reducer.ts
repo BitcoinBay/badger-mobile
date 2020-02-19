@@ -61,6 +61,9 @@ const addArtifact = (
 ) => {
   const { address, artifact } = payload;
 
+  console.log("artifacts/reducer address:", address);
+  console.log("artifacts/reducer artifact:", artifact);
+
   const existingAcounts = state.allIds;
 
   if (existingAcounts.includes(address)) {

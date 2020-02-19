@@ -15,4 +15,8 @@ const activeArtifactSelector = createSelector(
   }
 );
 
-export { activeArtifactIdSelector, activeArtifactSelector };
+const getArtifactSelector = createSelector(activeArtifactSelector, artifact => {
+  return artifact.networks ? artifact : null;
+});
+
+export { activeArtifactIdSelector, getArtifactSelector };

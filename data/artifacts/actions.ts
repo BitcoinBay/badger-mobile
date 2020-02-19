@@ -30,10 +30,12 @@ const getArtifactFail = () => ({
 });
 
 const getP2SHAddress = (state: FullState) => {
-  dispatch(getArtifactStart());
-  const accountId = activeAccountIdSelector(state);
-  const { address, artifact } = deriveP2SH(accountId) as Artifact;
-  dispatch(getArtifactSuccess(address, artifact));
+  return async (dispatch: Function, getState: Function) => {
+    dispatch(getArtifactStart());
+    const accountId = activeAccountIdSelector(state);
+    const { address, artifact } = deriveP2SH(accountId) as Artifact;
+    dispatch(getArtifactSuccess(address, artifact));
+  };
 };
 
-export { getArtifactStart, getArtifactFail };
+export { getP2SHAddress };
