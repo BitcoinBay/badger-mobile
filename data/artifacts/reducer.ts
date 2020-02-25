@@ -92,6 +92,8 @@ const artifacts = (state: State = initialState, action: Action): State => {
       return state;
     case GET_ARTIFACT_SUCCESS:
       return addArtifact(state, action.payload);
+    case GET_ARTIFACT_FAIL:
+      return state;
     default:
       return state;
   }
