@@ -26,7 +26,7 @@ const getArtifactSuccess = (address: string, artifact: Artifact) => ({
 
 const getArtifactFail = () => ({
   type: GET_ARTIFACT_FAIL,
-  paylaod: null
+  payload: null
 });
 
 const getP2SHAddress = (addrString: string) => {
@@ -42,4 +42,9 @@ const getP2SHAddress = (addrString: string) => {
   };
 };
 
-export { getP2SHAddress };
+export {
+  getArtifactStart,
+  getArtifactSuccess,
+  getArtifactFail,
+  getP2SHAddress
+};
