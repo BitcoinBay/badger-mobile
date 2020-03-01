@@ -2,11 +2,12 @@ import {
   createStore,
   combineReducers,
   applyMiddleware,
-  Middleware
+  Middleware,
+  AnyAction
 } from "redux";
 import { persistStore, persistReducer, PersistState } from "redux-persist";
 import AsyncStorage from "@react-native-community/async-storage";
-import ReduxThunk from "redux-thunk";
+import ReduxThunk, { ThunkMiddleware } from "redux-thunk";
 
 import accountsReducer, {
   State as StateAccount,
@@ -33,12 +34,18 @@ import pricesReducer, {
   initialState as initialPricesState
 } from "./prices/reducer";
 
+import settingsReducer, {
+  SettingsState as StateSettings,
+  initialState as initialSettingsState
+} from "./settings/reducer";
+
 export type FullState = {
   accounts: StateAccount;
   prices: StatePrices;
   tokens: StateTokens;
   transactions: StateTransactions;
   utxos: StateUTXOS;
+  settings: StateSettings;
   _persist?: PersistState;
 };
 
@@ -47,6 +54,7 @@ const initialState: FullState = {
   prices: initialPricesState,
   tokens: initialTokensState,
   transactions: initialTransactionsState,
+  settings: initialSettingsState,
   utxos: initialUTXOSState
 };
 
@@ -54,7 +62,7 @@ const initialState: FullState = {
 const persistConfig = {
   key: "root",
   storage: AsyncStorage,
-  whitelist: ["utxos", "tokens", "transactions"]
+  whitelist: ["utxos", "tokens", "transactions", "settings"]
 };
 
 // keypairs are re-computed each time the app launches, cannot persist complex objects easily.
@@ -75,7 +83,8 @@ const rootReducer = combineReducers({
   prices: persistReducer(pricesPersistConfig, pricesReducer),
   tokens: tokensReducer,
   transactions: transactionsReducer,
-  utxos: utxosReducer
+  utxos: utxosReducer,
+  settings: settingsReducer
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
@@ -89,7 +98,10 @@ const Logger: Middleware = store => next => action => {
   return next(action);
 };
 
-const middleware = [Logger, ReduxThunk];
+const middleware = [
+  Logger,
+  ReduxThunk as ThunkMiddleware<FullState, AnyAction>
+];
 
 const getStore = () => {
   // The ignore here is because it wants initialState to have all of the persist information.
