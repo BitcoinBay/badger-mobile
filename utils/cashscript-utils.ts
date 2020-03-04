@@ -26,7 +26,7 @@ const deriveP2SH = (address: string) => {
     "mainnet"
   );
   const instance: Instance = P2PKH.new(pkh);
-  console.log("P2PKH", P2PKH);
+  //console.log("instance", instance);
   const P2SHaddress = instance.address;
   const artifact = P2PKH.artifact;
 
