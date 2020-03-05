@@ -45,11 +45,13 @@ export type State = {
     [contractId: string]: Artifact;
   };
   allIds: string[];
+  activeId?: string | null;
 };
 
 export const initialState: State = {
   byId: {},
-  allIds: {}
+  allIds: {},
+  activeId: null
 };
 
 const addArtifact = (
@@ -82,7 +84,8 @@ const addArtifact = (
       ...state.byId,
       [address]: artifact
     },
-    allIds: [...state.allIds, address]
+    allIds: [...state.allIds, address],
+    activeId: address
   };
 };
 

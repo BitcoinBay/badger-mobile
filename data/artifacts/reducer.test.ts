@@ -32,11 +32,10 @@ describe("artifacts::reducer", () => {
     };
     expect(stateAfter).toEqual(expectedState);
   });
-  /*
+
   it("should get and store new artifact", () => {
     const testAddr = "bitcoincash:qqakphm6jqeteh902n59h2jct706n4srpuzp95a5qh";
     const stateBefore = initialState;
-    const stateAfter = artifactsReducer(stateBefore, getP2SHAddress(testAddr));
 
     const { P2SHaddress, artifact } = deriveP2SH(testAddr);
     const expectedState = {
@@ -45,14 +44,20 @@ describe("artifacts::reducer", () => {
         ...initialState.byId,
         P2SHAddress: artifact
       },
-      //allIds not currently working
-      allIds: {
-        ...initialState.allIds,
-        P2SHaddress
-      }
+      allIds: [P2SHaddress],
+      activeId: P2SHaddress
     };
 
-    expect(stateAfter).toEqual(expectedState);
+    const stateAfterOnce = artifactsReducer(
+      stateBefore,
+      getP2SHAddress(testAddr)
+    );
+    expect(stateAfterOnce).toEqual(expectedState);
+
+    const stateAfterTwice = artifactsReducer(
+      stateAfterOnce,
+      getP2SHAddress(testAddr)
+    );
+    expect(stateAfterTwice).toEqual(expectedState);
   });
-*/
 });
