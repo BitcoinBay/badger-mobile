@@ -3,8 +3,8 @@ import { Contract, Instance, Sig } from "cashscript";
 import { BITBOX } from "bitbox-sdk";
 import path from "path";
 
-const deriveP2SH = (address: string) => {
-  const pkh = SLP.Address.cashToHash160(address);
+const deriveP2SH = (addr: string) => {
+  const pkh = new Buffer.from(SLP.Address.cashToHash160(addr), "hex");
   /*
   const P2PKH: Contract = Contract.compile(
     `
@@ -26,11 +26,11 @@ const deriveP2SH = (address: string) => {
     "mainnet"
   );
   const instance: Instance = P2PKH.new(pkh);
-  //console.log("instance", instance);
-  const P2SHaddress = instance.address;
   const artifact = P2PKH.artifact;
+  const networkKeys = Object.keys(artifact.networks.mainnet);
+  const address = networkKeys[0];
 
-  return { P2SHaddress, artifact, instance };
+  return { address, artifact };
 };
 
 export { deriveP2SH };

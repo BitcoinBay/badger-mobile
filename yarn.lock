@@ -2487,7 +2487,7 @@ bitcoincash-ops@Bitcoin-com/bitcoincash-ops#2.0.0, "bitcoincash-ops@github:Bitco
   version "2.0.0"
   resolved "https://codeload.github.com/Bitcoin-com/bitcoincash-ops/tar.gz/6ab82cc7326c67236f3b2d9d0457258ac2ef48e3"
 
-bitcoincashjs-lib@Bitcoin-com/bitcoincashjs-lib#v4.0.1, "bitcoincashjs-lib@github:Bitcoin-com/bitcoincashjs-lib#v4.0.1":
+bitcoincashjs-lib@Bitcoin-com/bitcoincashjs-lib#v4.0.1:
   version "4.0.1"
   resolved "https://codeload.github.com/Bitcoin-com/bitcoincashjs-lib/tar.gz/28447b40a4ccd23913f7ade6589dc7214c99e60a"
   dependencies:
@@ -3303,9 +3303,9 @@ cosmiconfig@^6.0.0:
     path-type "^4.0.0"
     yaml "^1.7.2"
 
-"cramer-bch@git+https://github.com/jcramer/bitcoincashjs-lib.git":
+"cramer-bch@https://github.com/jcramer/bitcoincashjs-lib":
   version "4.0.1"
-  resolved "git+https://github.com/jcramer/bitcoincashjs-lib.git#0c24341e7e3b877dd447672bdefe2200fa2be82f"
+  resolved "https://github.com/jcramer/bitcoincashjs-lib#0c24341e7e3b877dd447672bdefe2200fa2be82f"
   dependencies:
     bech32 "^1.1.2"
     bigi "^1.4.0"

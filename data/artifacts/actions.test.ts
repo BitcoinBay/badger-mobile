@@ -34,16 +34,16 @@ describe("artifacts::action", () => {
 
   it("should create action for - Get artifact success", () => {
     const testAddr = "bitcoincash:qqakphm6jqeteh902n59h2jct706n4srpuzp95a5qh";
-    const { P2SHaddress, artifact } = deriveP2SH(testAddr);
+    const { artifact } = deriveP2SH(testAddr) as Artifact;
+    const P2SHAddr = Object.keys(artifact.networks.mainnet);
+    const address = P2SHAddr[0];
     const expectedAction = {
       type: actionTypes.GET_ARTIFACT_SUCCESS,
       payload: {
-        address: P2SHaddress,
-        artifact: artifact
+        address,
+        artifact
       }
     };
-    expect(actions.getArtifactSuccess(P2SHaddress, artifact)).toEqual(
-      expectedAction
-    );
+    expect(actions.getArtifactSuccess(artifact)).toEqual(expectedAction);
   });
 });

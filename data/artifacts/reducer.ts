@@ -50,30 +50,32 @@ export type State = {
 
 export const initialState: State = {
   byId: {},
-  allIds: {},
+  allIds: [],
   activeId: null
 };
 
 const addArtifact = (
   state: State,
   payload: {
-    address: string;
+    address: String;
     artifact: Artifact;
   }
 ) => {
-  const { address, artifact } = payload;
+  const { artifact } = payload;
 
-  console.log("artifacts/reducer address:", address);
+  const P2SHAddr = Object.keys(artifact.networks.mainnet);
+  const addr = P2SHAddr[0];
+  console.log("artifacts/reducer address:", addr);
   console.log("artifacts/reducer artifact:", artifact);
 
   const existingAcounts = state.allIds;
 
-  if (existingAcounts.includes(address)) {
+  if (existingAcounts.includes(addr)) {
     return {
       ...state,
       byId: {
         ...state.byId,
-        [address]: artifact
+        [addr]: artifact
       }
     };
   }
@@ -82,10 +84,10 @@ const addArtifact = (
     ...state,
     byId: {
       ...state.byId,
-      [address]: artifact
+      [addr]: artifact
     },
-    allIds: [...state.allIds, address],
-    activeId: address
+    allIds: [...state.allIds, addr],
+    activeId: addr
   };
 };
 

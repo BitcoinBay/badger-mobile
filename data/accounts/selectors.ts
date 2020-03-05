@@ -21,8 +21,6 @@ const activeAccountSelector = createSelector(
 const hasMnemonicSelector = createSelector(activeAccountSelector, account => {
   if (account && account.mnemonic) {
     return true;
-  } else if (account) {
-    return true;
   }
   return false;
 });

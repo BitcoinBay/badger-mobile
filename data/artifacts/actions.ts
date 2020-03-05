@@ -8,7 +8,6 @@ import { Artifact } from "./reducer";
 
 import { deriveP2SH } from "../../utils/cashscript-utils";
 
-import { activeAccountIdSelector } from "../accounts/selectors";
 import { FullState } from "../store";
 
 const getArtifactStart = () => ({
@@ -33,7 +32,8 @@ const getP2SHAddress = (addrString: string) => {
   return async (dispatch: Function, getState: Function) => {
     dispatch(getArtifactStart());
     try {
-      const { address, artifact } = deriveP2SH(addrString) as Artifact;
+      const { artifact } = deriveP2SH(addrString) as Artifact;
+      const { address } = deriveP2SH(addrString);
       dispatch(getArtifactSuccess(address, artifact));
     } catch (e) {
       console.log(e);
