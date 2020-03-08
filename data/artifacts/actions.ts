@@ -15,12 +15,9 @@ const getArtifactStart = () => ({
   payload: null
 });
 
-const getArtifactSuccess = (address: string, artifact: Artifact) => ({
+const getArtifactSuccess = (artifact: Artifact) => ({
   type: GET_ARTIFACT_SUCCESS,
-  payload: {
-    address,
-    artifact
-  }
+  payload: artifact
 });
 
 const getArtifactFail = () => ({
@@ -31,14 +28,8 @@ const getArtifactFail = () => ({
 const getP2SHAddress = (addrString: string) => {
   return async (dispatch: Function, getState: Function) => {
     dispatch(getArtifactStart());
-    try {
-      const { artifact } = deriveP2SH(addrString) as Artifact;
-      const { address } = deriveP2SH(addrString);
-      dispatch(getArtifactSuccess(address, artifact));
-    } catch (e) {
-      console.log(e);
-      dispatch(getArtifactFail());
-    }
+    const { artifact } = deriveP2SH(addrString) as Artifact;
+    dispatch(getArtifactSuccess(artifact));
   };
 };
 

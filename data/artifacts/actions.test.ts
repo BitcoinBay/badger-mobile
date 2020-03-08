@@ -40,7 +40,7 @@ describe("artifacts::action", () => {
     const expectedAction = {
       type: actionTypes.GET_ARTIFACT_SUCCESS,
       payload: {
-        address,
+        //        address,
         artifact
       }
     };

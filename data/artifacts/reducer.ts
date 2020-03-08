@@ -57,7 +57,7 @@ export const initialState: State = {
 const addArtifact = (
   state: State,
   payload: {
-    address: String;
+    //    address: String;
     artifact: Artifact;
   }
 ) => {
@@ -65,8 +65,6 @@ const addArtifact = (
 
   const P2SHAddr = Object.keys(artifact.networks.mainnet);
   const addr = P2SHAddr[0];
-  console.log("artifacts/reducer address:", addr);
-  console.log("artifacts/reducer artifact:", artifact);
 
   const existingAcounts = state.allIds;
 
