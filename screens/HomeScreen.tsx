@@ -14,7 +14,7 @@ import {
 import { NavigationScreenProps } from "react-navigation";
 import uuidv5 from "uuid/v5";
 
-import { T, H1, Spacer } from "../atoms";
+import { T, H1, Spacer, Button } from "../atoms";
 
 import { CoinRowHeader, CoinRow } from "../components";
 
@@ -351,6 +351,12 @@ const HomeScreen = ({
                 )
               }
               keyExtractor={(item, index) => `${index}`}
+            />
+            <Button
+              onPress={() => {
+                navigation.navigate("ContractScreen");
+              }}
+              text="Contracts"
             />
             <Spacer />
             {!initialLoadingDone && (
