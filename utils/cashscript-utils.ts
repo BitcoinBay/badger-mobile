@@ -7,7 +7,16 @@ const deriveP2SH = (addr: string) => {
   const pkh = new Buffer.from(SLP.Address.cashToHash160(addr), "hex");
 
   const P2PKH: Contract = Contract.compile(
-    path.join(__dirname, "P2PKH.cash"),
+    `pragma cashscript ^0.3.3;
+
+    contract P2PKH(bytes20 pkh) {
+        // Require pk to match stored pkh and signature to match
+        function spend(pubkey pk, sig s) {
+            require(hash160(pk) == pkh);
+            require(checkSig(s, pk));
+        }
+    }
+    `,
     "mainnet"
   );
   const instance: Instance = P2PKH.new(pkh);

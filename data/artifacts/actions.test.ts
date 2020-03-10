@@ -39,11 +39,9 @@ describe("artifacts::action", () => {
     const address = P2SHAddr[0];
     const expectedAction = {
       type: actionTypes.GET_ARTIFACT_SUCCESS,
-      payload: {
-        //        address,
-        artifact
-      }
+      payload: artifact
     };
+
     expect(actions.getArtifactSuccess(artifact)).toEqual(expectedAction);
   });
 });

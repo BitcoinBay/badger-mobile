@@ -54,14 +54,8 @@ export const initialState: State = {
   activeId: null
 };
 
-const addArtifact = (
-  state: State,
-  payload: {
-    //    address: String;
-    artifact: Artifact;
-  }
-) => {
-  const { artifact } = payload;
+const addArtifact = (state: State, payload: Artifact) => {
+  const artifact = payload;
 
   const P2SHAddr = Object.keys(artifact.networks.mainnet);
   const addr = P2SHAddr[0];

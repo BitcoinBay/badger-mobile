@@ -57,7 +57,7 @@ describe("artifacts::reducer", () => {
 
       const stateAfterOnce = artifactsReducer(
         stateBefore,
-        getArtifactSuccess(address, artifact)
+        getArtifactSuccess(artifact)
       );
       expect(stateAfterOnce).toEqual(expectedState);
       /*
