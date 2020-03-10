@@ -41,6 +41,7 @@ describe("artifacts::reducer", () => {
       const stateBefore = initialState;
 
       const { artifact } = deriveP2SH(testAddr);
+      console.log(Object.keys(artifact.networks.mainnet)[0]);
       const P2SHAddr = Object.keys(artifact.networks.mainnet);
       const address = P2SHAddr[0];
 
