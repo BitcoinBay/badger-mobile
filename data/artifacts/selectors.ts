@@ -15,6 +15,14 @@ const hasArtifactSelector = createSelector(
   allIds => allIds.length > 0
 );
 
+const artifactsAllIdsAndNamesSelector = createSelector(
+  artifactsAllIdsSelector,
+  artifactsByIdSelector,
+  (allIds, byId) => {
+    return allIds.map(id => ({ address: id, name: byId[id].contractName }));
+  }
+);
+
 const activeArtifactSelector = createSelector(
   artifactsByIdSelector,
   activeArtifactIdSelector,
@@ -31,5 +39,6 @@ export {
   activeArtifactIdSelector,
   getArtifactSelector,
   artifactsAllIdsSelector,
-  hasArtifactSelector
+  hasArtifactSelector,
+  artifactsAllIdsAndNamesSelector
 };
