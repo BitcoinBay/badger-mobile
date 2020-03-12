@@ -10,6 +10,11 @@ const artifactsByIdSelector = (state: FullState) => state.artifacts.byId;
 
 const activeArtifactIdSelector = (state: FullState) => state.artifacts.activeId;
 
+const hasArtifactSelector = createSelector(
+  artifactsAllIdsSelector,
+  allIds => allIds.length > 0
+);
+
 const activeArtifactSelector = createSelector(
   artifactsByIdSelector,
   activeArtifactIdSelector,
@@ -25,5 +30,6 @@ const getArtifactSelector = createSelector(activeArtifactSelector, artifact => {
 export {
   activeArtifactIdSelector,
   getArtifactSelector,
-  artifactsAllIdsSelector
+  artifactsAllIdsSelector,
+  hasArtifactSelector
 };

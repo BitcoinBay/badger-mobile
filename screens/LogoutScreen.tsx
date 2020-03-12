@@ -7,6 +7,7 @@ import _ from "lodash";
 
 import { Button, T, Spacer, SwipeButton } from "../atoms";
 import { logoutAccount } from "../data/accounts/actions";
+import { clearArtifacts } from "../data/artifacts/actions";
 import { FullState } from "../data/store";
 
 const ButtonContainer = styled(View)``;
@@ -22,7 +23,8 @@ const mapStateToProps = (state: FullState) => {
 };
 
 const mapDispatchToProps = {
-  logoutAccount
+  logoutAccount,
+  clearArtifacts
 };
 
 const connector = connect(mapStateToProps, mapDispatchToProps);
@@ -30,7 +32,7 @@ const connector = connect(mapStateToProps, mapDispatchToProps);
 type PropsFromRedux = ConnectedProps<typeof connector>;
 type Props = PropsFromParent & PropsFromRedux;
 
-const LogoutScreen = ({ navigation, logoutAccount }: Props) => {
+const LogoutScreen = ({ navigation, logoutAccount, clearArtifacts }: Props) => {
   return (
     <Screen>
       <ScrollView
@@ -67,7 +69,7 @@ const LogoutScreen = ({ navigation, logoutAccount }: Props) => {
           <SwipeButton
             swipeFn={() => {
               logoutAccount();
-
+              clearArtifacts();
               _.delay(() => navigation.navigate("AuthLoadingCheck"), 25);
             }}
             labelAction="To Logout"
