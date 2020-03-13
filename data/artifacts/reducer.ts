@@ -1,7 +1,8 @@
 import {
   GET_ARTIFACT_START,
   GET_ARTIFACT_SUCCESS,
-  GET_ARTIFACT_FAIL
+  GET_ARTIFACT_FAIL,
+  CLEAR_ARTIFACTS
 } from "./constants";
 
 export interface AbiInput {
@@ -83,6 +84,10 @@ const addArtifact = (state: State, payload: Artifact) => {
   };
 };
 
+const clearArtifacts = (state: State) => {
+  return initialState;
+};
+
 const artifacts = (state: State = initialState, action: Action): State => {
   switch (action.type) {
     case GET_ARTIFACT_START:
@@ -91,6 +96,8 @@ const artifacts = (state: State = initialState, action: Action): State => {
       return addArtifact(state, action.payload);
     case GET_ARTIFACT_FAIL:
       return state;
+    case CLEAR_ARTIFACTS:
+      return clearArtifacts(state);
     default:
       return state;
   }

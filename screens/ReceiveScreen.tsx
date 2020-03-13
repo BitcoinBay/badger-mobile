@@ -18,6 +18,7 @@ import {
   getAddressSelector,
   getAddressSlpSelector
 } from "../data/accounts/selectors";
+import { artifactsAllIdsAndNamesSelector } from "../data/artifacts/selectors";
 import { addressToSlp } from "../utils/account-utils";
 
 import { T, Spacer, H2 } from "../atoms";
@@ -50,6 +51,11 @@ const ToggleRight = styled(TouchableOpacity)`
   border-bottom-right-radius: 8;
   border-top-right-radius: 8;
 `;
+const ToggleMiddle = styled(TouchableOpacity)`
+  ${ToggleBase};
+  border-left-width: 0;
+  border-right-width: 0;
+`;
 const ToggleLeft = styled(TouchableOpacity)`
   ${ToggleBase};
   border-bottom-left-radius: 8;
@@ -60,6 +66,15 @@ const QRHolder = styled(View)`
   justify-content: center;
   align-items: center;
   padding: 0 16px;
+  overflow: hidden;
+  position: relative;
+`;
+
+const QRPadding = (Dimensions.get("window").width * 0.35) / 2 - 10;
+const HScrollableQRHolder = styled(View)`
+  justify-content: center;
+  align-items: center;
+  padding: 0 ${QRPadding}px 10px ${QRPadding}px;
   overflow: hidden;
   position: relative;
 `;
@@ -102,7 +117,8 @@ type PropsFromParent = NavigationScreenProps & {};
 
 const mapStateToProps = (state: FullState) => ({
   address: getAddressSelector(state),
-  addressSlp: getAddressSlpSelector(state)
+  addressSlp: getAddressSlpSelector(state),
+  addressesArtifacts: artifactsAllIdsAndNamesSelector(state)
 });
 
 const mapDispatchToProps = {};
@@ -112,7 +128,7 @@ const connector = connect(mapStateToProps, mapDispatchToProps);
 type PropsFromRedux = ConnectedProps<typeof connector>;
 type Props = PropsFromParent & PropsFromRedux;
 
-const ReceiveScreen = ({ address, addressSlp }: Props) => {
+const ReceiveScreen = ({ address, addressSlp, addressesArtifacts }: Props) => {
   const scrollRef = useRef<ScrollView>(null);
   const [showing, setShowing] = useState("BCH");
   const [copyNotify, setCopyNotify] = useState("");
@@ -162,7 +178,7 @@ const ReceiveScreen = ({ address, addressSlp }: Props) => {
               BCH
             </T>
           </ToggleLeft>
-          <ToggleRight
+          <ToggleMiddle
             isActive={showing === "SLP"}
             onPress={() => {
               setShowing("SLP");
@@ -171,6 +187,17 @@ const ReceiveScreen = ({ address, addressSlp }: Props) => {
           >
             <T weight="bold" type={showing === "SLP" ? "inverse" : "primary"}>
               SLP
+            </T>
+          </ToggleMiddle>
+          <ToggleRight
+            isActive={showing === "P2SH"}
+            onPress={() => {
+              setShowing("P2SH");
+              setCopyNotify("");
+            }}
+          >
+            <T weight="bold" type={showing === "P2SH" ? "inverse" : "primary"}>
+              P2SH
             </T>
           </ToggleRight>
         </ToggleRow>
@@ -218,6 +245,63 @@ const ReceiveScreen = ({ address, addressSlp }: Props) => {
             <Spacer tiny />
             <T center size="small" type="primary">
               {copyNotify === "BCH" ? "Copied BCH Address" : " "}
+            </T>
+          </>
+        )}
+        {showing === "P2SH" && (
+          <>
+            <H2 center>Pay To Script Hash (P2SH)</H2>
+            <Spacer tiny />
+            <T size="xsmall" center>
+              P2SH:
+            </T>
+
+            {addressesArtifacts.map(({ address, name }) => (
+              <ScrollView
+                horizontal
+                decelerationRate={0}
+                snapToInterval={Dimensions.get("window").width}
+                snapToAlignment={"center"}
+              >
+                <TouchableOpacity
+                  onPress={() => {
+                    if (showing === "P2SH") {
+                      Clipboard.setString(address);
+                      setCopyNotify("P2SH");
+                    }
+                  }}
+                >
+                  <HScrollableQRHolder>
+                    <T size="xsmall" center>
+                      {address ? address.split(":")[1] : " "}
+                    </T>
+                    <Spacer tiny />
+
+                    <QRCode
+                      value={address}
+                      size={QRSize}
+                      color="black"
+                      backgroundColor="white"
+                    />
+                    <Spacer tiny />
+                    <T size="small" center>
+                      {name}
+                    </T>
+                    <TypeOverlay>
+                      <TypeImage source={SLPImage} size={QRSize} />
+                    </TypeOverlay>
+                    {showing !== "P2SH" && (
+                      <QROverlay>
+                        <T>Tap to show</T>
+                      </QROverlay>
+                    )}
+                  </HScrollableQRHolder>
+                </TouchableOpacity>
+              </ScrollView>
+            ))}
+            <Spacer tiny />
+            <T center size="small" type="primary">
+              {copyNotify === "P2SH" ? "Copied P2SH Address" : " "}
             </T>
           </>
         )}

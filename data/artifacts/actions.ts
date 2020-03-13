@@ -1,7 +1,8 @@
 import {
   GET_ARTIFACT_START,
   GET_ARTIFACT_SUCCESS,
-  GET_ARTIFACT_FAIL
+  GET_ARTIFACT_FAIL,
+  CLEAR_ARTIFACTS
 } from "./constants";
 
 import { Artifact } from "./reducer";
@@ -25,6 +26,11 @@ const getArtifactFail = () => ({
   payload: null
 });
 
+const clearArtifacts = () => ({
+  type: CLEAR_ARTIFACTS,
+  payload: null
+});
+
 const getP2SHAddress = (addrString: string) => {
   return async (dispatch: Function, getState: Function) => {
     dispatch(getArtifactStart());
@@ -37,5 +43,6 @@ export {
   getArtifactStart,
   getArtifactSuccess,
   getArtifactFail,
-  getP2SHAddress
+  getP2SHAddress,
+  clearArtifacts
 };
