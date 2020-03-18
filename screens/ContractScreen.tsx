@@ -1,51 +1,73 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
-import { ScrollView, SafeAreaView, View } from "react-native";
+import { SafeAreaView, View } from "react-native";
+import { NavigationScreenProps } from "react-navigation";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
 import { connect, ConnectedProps } from "react-redux";
 
-import { Button, T, H1, Spacer } from "../atoms";
-
-import {
-  activeArtifactIdSelector,
-  getArtifactSelector,
-  artifactsAllIdsSelector
-} from "../data/artifacts/selectors";
-import { getAddressSelector } from "../data/accounts/selectors";
-
-import { getP2SHAddress } from "../data/artifacts/actions";
-import { FullState } from "../data/store";
+import { Button, T, H1, H2, Spacer } from "../atoms";
 
 const ScreenCover = styled(View)`
   flex: 1;
-  background-color: ${props => props.theme.primary500};
   padding: 0 16px;
 `;
 
-const TopArea = styled(View)``;
-
-const BottomArea = styled(View)``;
-const ReceiptArea = styled(View)`
-  flex: 1;
-  justify-content: center;
+const PrimaryHeaderWrapper = styled(View)`
+  align-items: center;
+  margin-top: 30px;
+  margin-bottom: 30px;
 `;
 
-const mapStateToProps = (state: FullState) => ({
-  allArtifactIds: artifactsAllIdsSelector(state),
-  address: getAddressSelector(state)
-});
+const SecondaryHeaderWrapper = styled(View)`
+  margin-bottom: 20px;
+`;
 
-const mapDispatchToProps = { getP2SHAddress };
+const StyledButton = styled(Button)`
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+`;
 
-const connector = connect(mapStateToProps, mapDispatchToProps);
+const Dropdown = styled(View)`
+  border-top-width: 0;
+  border: 1px solid ${props => props.theme.primary500};
+  padding: 10px;
+`;
 
-type PropsFromRedux = ConnectedProps<typeof connector>;
-type Props = PropsFromRedux;
-
-const ContractScreen = ({ address, getP2SHAddress, allArtifactIds }: Props) => {
-  const createContract = () => {
-    getP2SHAddress(address);
+type PropsFromParent = NavigationScreenProps & {
+  navigation: {
+    state?: {
+      params: {
+        artifactId: string;
+      };
+    };
   };
+};
+
+type ContracInput = {
+  name: string;
+  type: string;
+};
+
+type ContractFunction = {
+  name: string;
+  covenant: boolean;
+  inputs: ContracInput[];
+};
+
+type Props = PropsFromParent;
+
+const ContractScreen = ({ navigation }: Props) => {
+  const { artifactId, artifact } = navigation.state.params;
+  const { abi, contractName } = artifact;
+  const [inputDropdownsToggled, setInputDropDownsToggled] = useState(
+    abi.reduce(
+      (accumulatorObj: object, currentFn: ContractFunction) => ({
+        ...accumulatorObj,
+        [currentFn.name]: true
+      }),
+      {}
+    )
+  );
 
   return (
     <ScreenCover>
@@ -54,21 +76,69 @@ const ContractScreen = ({ address, getP2SHAddress, allArtifactIds }: Props) => {
           height: "100%"
         }}
       >
-        <ScrollView
-          contentContainerStyle={{
-            flexGrow: 1
-          }}
-        >
-          {allArtifactIds.map(artifactId => (
-            <T center size="large">
-              {artifactId}
-            </T>
-          ))}
-          <Button onPress={() => createContract()} text="Create Contract" />
-        </ScrollView>
+        <PrimaryHeaderWrapper>
+          <H1>{contractName}</H1>
+          <Spacer tiny />
+          <T size="xsmall">{artifactId}</T>
+        </PrimaryHeaderWrapper>
+        <SecondaryHeaderWrapper>
+          <H2 type="muted">Functions</H2>
+        </SecondaryHeaderWrapper>
+        {abi.map((fn: ContractFunction) => (
+          <View key={fn.name}>
+            <StyledButton
+              onPress={() =>
+                setInputDropDownsToggled({
+                  ...inputDropdownsToggled,
+                  [fn.name]: !inputDropdownsToggled[fn.name]
+                })
+              }
+              style={{ flexDirection: "row" }}
+            >
+              <T weight="bold" type="inverse" style={{ flexGrow: 1 }}>
+                {fn.name}
+              </T>
+              <FontAwesome
+                iconStyle={{ marginLeft: 5, marginRight: 5 }}
+                size={30}
+                color="#fff"
+                backgroundColor="transparent"
+                name={
+                  inputDropdownsToggled[fn.name] ? "angle-up" : "angle-down"
+                }
+              />
+            </StyledButton>
+            {inputDropdownsToggled[fn.name] && (
+              <Dropdown>
+                <T weight="bold" type="muted2">
+                  Inputs
+                </T>
+                {fn.inputs.map((input: ContracInput) => (
+                  <View key={input.name}>
+                    <Spacer tiny />
+                    <T>
+                      name: <T weight="bold">{input.name}</T>
+                      {"  "}type: <T weight="bold">{input.type}</T>
+                    </T>
+                  </View>
+                ))}
+                <Spacer />
+                <Button
+                  text="interact"
+                  onPress={() =>
+                    navigation.navigate("ContractInteraction", {
+                      artifactId,
+                      artifact
+                    })
+                  }
+                />
+              </Dropdown>
+            )}
+          </View>
+        ))}
       </SafeAreaView>
     </ScreenCover>
   );
 };
 
-export default connector(ContractScreen);
+export default ContractScreen;
