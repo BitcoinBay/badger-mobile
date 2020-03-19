@@ -1,0 +1,10 @@
+pragma cashscript ^0.3.3;
+
+contract BIP38Wallet(bytes20 inputPkh, datasig msgSig) {
+    // Require pk to match stored public key hash and signature to match
+    function spend(pubkey pk, sig s, bytes message) {
+        require(hash160(pk) == inputPkh);
+        require(checkDataSig(msgSig, message, pk));
+        require(checkSig(s, pk));
+    }
+}

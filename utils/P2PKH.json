@@ -23,15 +23,11 @@
     }
   ],
   "bytecode": "OP_OVER OP_HASH160 OP_EQUALVERIFY OP_CHECKSIG",
-  "source": "pragma cashscript ^0.3.3;\n\ncontract P2PKH(bytes20 pkh) {\n    // Require pk to match stored pkh and signature to match\n    function spend(pubkey pk, sig s) {\n        require(hash160(pk) == pkh);\n        require(checkSig(s, pk));\n    }\n}\n",
-  "networks": {
-    "mainnet": {
-      "bitcoincash:ppugjyptmwnkudycd6yu33qzhat5yjyvssq2ms24p6": "3b60df7a9032bcdcaf54e85baa585f9fa9d6030f OP_OVER OP_HASH160 OP_EQUALVERIFY OP_CHECKSIG"
-    }
-  },
+  "source": "pragma cashscript ^0.3.3;\r\n\r\ncontract P2PKH(bytes20 pkh) {\r\n    // Require pk to match stored pkh and signature to match\r\n    function spend(pubkey pk, sig s) {\r\n        require(hash160(pk) == pkh);\r\n        require(checkSig(s, pk));\r\n    }\r\n}\r\n",
+  "networks": {},
   "compiler": {
     "name": "cashc",
     "version": "0.3.3"
   },
-  "updatedAt": "2020-03-01T20:43:13.476Z"
+  "updatedAt": "2020-03-17T16:45:47.904Z"
 }
