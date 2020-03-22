@@ -66,10 +66,9 @@ const ContractListScreen = ({
             <H2>Your Contracts</H2>
           </HeaderWrapper>
           {allArtifactIds.map(artifactId => (
-            <>
+            <View key={artifactId}>
               <Button
                 nature="ghost"
-                key={artifactId}
                 onPress={() =>
                   navigation.navigate("ContractScreen", {
                     artifactId,
@@ -83,7 +82,7 @@ const ContractListScreen = ({
                 </T>
               </Button>
               <Spacer tiny />
-            </>
+            </View>
           ))}
           <Spacer />
           <Button onPress={() => createContract()} text="Create Contract" />

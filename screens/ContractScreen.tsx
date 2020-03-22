@@ -84,7 +84,7 @@ const ContractScreen = ({ navigation }: Props) => {
         <SecondaryHeaderWrapper>
           <H2 type="muted">Functions</H2>
         </SecondaryHeaderWrapper>
-        {abi.map((fn: ContractFunction) => (
+        {abi.map((fn: ContractFunction, fnIndex: Number) => (
           <View key={fn.name}>
             <StyledButton
               onPress={() =>
@@ -126,9 +126,12 @@ const ContractScreen = ({ navigation }: Props) => {
                 <Button
                   text="interact"
                   onPress={() =>
-                    navigation.navigate("ContractInteraction", {
+                    navigation.navigate("ContractTxSetupScreen", {
                       artifactId,
-                      artifact
+                      contractName: artifact.contractName,
+                      fnInputs: fn.inputs,
+                      fnIndex: fnIndex,
+                      fnName: fn.name
                     })
                   }
                 />

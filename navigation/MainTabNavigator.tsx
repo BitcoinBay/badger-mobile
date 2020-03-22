@@ -19,6 +19,7 @@ import FAQScreen from "../screens/FAQScreen";
 import KeySweepScreen from "../screens/KeySweepScreen";
 import ContractListScreen from "../screens/ContractListScreen";
 import ContractScreen from "../screens/ContractScreen";
+import ContractTxSetupScreen from "../screens/ContractTxSetupScreen";
 
 import { ViewTermsOfUseScreen } from "../screens/TermsOfUseScreen";
 import { ViewPrivacyNoticeScreen } from "../screens/PrivacyNoticeScreen";
@@ -60,6 +61,12 @@ const HomeStack = createStackNavigator(
       screen: ContractScreen,
       navigationOptions: {
         title: "Contract"
+      }
+    },
+    ContractTxSetupScreen: {
+      screen: ContractTxSetupScreen,
+      navigationOptions: {
+        title: "Contract Transaction"
       }
     }
   },
