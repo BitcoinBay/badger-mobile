@@ -8,7 +8,7 @@ import * as actionTypes from "./constants";
 import { FullState } from "../store";
 import { Artifact } from "./reducer";
 
-import { deriveP2SH } from "../../utils/cashscript-utils";
+import { deriveP2SH, callContract } from "../../utils/cashscript-utils";
 
 type DispatchExts = ThunkDispatch<FullState, void, AnyAction>;
 

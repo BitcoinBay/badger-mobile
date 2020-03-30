@@ -2,7 +2,6 @@ import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { connect, ConnectedProps } from "react-redux";
 import styled from "styled-components";
 import {
-  Clipboard,
   Dimensions,
   Image,
   KeyboardAvoidingView,
@@ -13,20 +12,25 @@ import {
   View
 } from "react-native";
 import { Header, NavigationScreenProps } from "react-navigation";
+import _ from "lodash";
 import BigNumber from "bignumber.js";
+import { Sig } from "cashscript";
 
 import Ionicons from "react-native-vector-icons/Ionicons";
 
 import { T, H1, H2, Button, Spacer, SwipeButton } from "../atoms";
 
-import { updateTokensMeta } from "../data/tokens/actions";
+import { callArtifact } from "../data/artifacts/actions";
 
-import { getAddressSelector } from "../data/accounts/selectors";
-import { balancesSelector, Balances } from "../data/selectors";
-import { tokensByIdSelector } from "../data/tokens/selectors";
+import {
+  getAddressSelector,
+  bchKeypairByAccountSelector
+} from "../data/accounts/selectors";
+import { balancesSelector } from "../data/selectors";
 import { spotPricesSelector, currencySelector } from "../data/prices/selectors";
 import { activeAccountSelector } from "../data/accounts/selectors";
 import { utxosByAccountSelector } from "../data/utxos/selectors";
+import { artifactsByIdSelector } from "../data/artifacts/selectors";
 
 import {
   formatAmount,
@@ -34,7 +38,9 @@ import {
   computeFiatAmount,
   formatFiatAmount
 } from "../utils/balance-utils";
+import { getTokenImage } from "../utils/token-utils";
 import { currencyDecimalMap } from "../utils/currency-utils";
+import { getContractBalance } from "../utils/cashscript-utils";
 
 import { SLP } from "../utils/slp-sdk-utils";
 import { FullState } from "../data/store";
@@ -43,10 +49,8 @@ type PropsFromParent = NavigationScreenProps & {
   navigation: {
     state?: {
       params: {
-        artifactId?: string | null;
-        artifact?: string | null;
-        functionIndex?: Number | null;
-        functionName?: string | null;
+        artifactId?: string;
+        fnIndex?: number;
       };
     };
   };
@@ -54,8 +58,8 @@ type PropsFromParent = NavigationScreenProps & {
 
 const mapStateToProps = (state: FullState) => {
   const address = getAddressSelector(state);
+  const bchKeypair = bchKeypairByAccountSelector(state, address);
   const balances = balancesSelector(state, address);
-  const tokensById = tokensByIdSelector(state);
   const spotPrices = spotPricesSelector(state);
   const fiatCurrency = currencySelector(state);
   const activeAccount = activeAccountSelector(state);
@@ -63,29 +67,26 @@ const mapStateToProps = (state: FullState) => {
     state,
     activeAccount && activeAccount.address
   );
+  const artifacts = artifactsByIdSelector(state);
   return {
     address,
-    tokensById,
+    bchKeypair,
     balances,
     spotPrices,
     fiatCurrency,
-    utxos
+    utxos,
+    artifacts
   };
 };
 
 const mapDispatchToProps = {
-  updateTokensMeta
+  callArtifact
 };
 
 const connector = connect(mapStateToProps, mapDispatchToProps);
 
 type PropsFromRedux = ConnectedProps<typeof connector>;
 type Props = PropsFromParent & PropsFromRedux;
-
-type ContractFunctionInput = {
-  name: string;
-  type: string;
-};
 
 const StyledTextInput = styled(TextInput)`
   border-color: ${props => props.theme.accent500};
@@ -132,11 +133,6 @@ const TitleRow = styled(View)`
 const StyledButton = styled(Button)`
   align-items: center;
   flex-direction: row;
-`;
-
-const ButtonArea = styled(View)`
-  flex-direction: row;
-  justify-content: space-between;
 `;
 
 const ActionButtonArea = styled(View)`
@@ -195,50 +191,48 @@ const ErrorContainer = styled(View)`
 const ContractTxSetupScreen = ({
   navigation,
   address,
-  tokensById,
+  bchKeypair,
   balances,
   utxos,
   spotPrices,
-  fiatCurrency
+  fiatCurrency,
+  artifacts,
+  callArtifact
 }: Props) => {
-  const [sendAmount, setSendAmount] = useState("");
-  const [sendAmountFiat, setSendAmountFiat] = useState("0");
-  const [sendAmountCrypto, setSendAmountCrypto] = useState("0");
+  const [spendAmount, setSpendAmount] = useState("");
+  const [spendAmountFiat, setSpendAmountFiat] = useState("0");
+  const [spendAmountCrypto, setSpendAmountCrypto] = useState("0");
   const [amountType, setAmountType] = useState("crypto");
+  const [contractBalanceCrypto, setContractBalanceCrypto] = useState(
+    new BigNumber("0")
+  );
 
   const [errors, setErrors] = useState<string[]>([] as string[]);
   const [showSignatureOverlay, setShowSignatureOverlay] = useState(false);
 
-  const {
-    artifactId,
-    contractName,
-    artifact,
-    fnIndex,
-    fnName,
-    fnInputs
-  } = navigation.state.params;
+  const { artifactId, fnIndex } = navigation.state.params;
+  if (!artifactId || typeof fnIndex !== "number") {
+    navigation.goBack();
+    return <View></View>;
+  }
 
-  // Create default input values to store in inputValues state
-  const getDefaultInputValues = (functionInputs: ContractFunctionInput[]) => {
-    return functionInputs.reduce(
-      (
-        defaultFunctionInputs: { [index: string]: any },
-        functionInput: ContractFunctionInput
-      ) => {
-        if (functionInput.type === "pubkey") {
-          return { ...defaultFunctionInputs, [functionInput.name]: address };
-        } else {
-          return defaultFunctionInputs;
-        }
-      },
-      {}
-    );
-  };
+  const artifact = artifacts[artifactId ? artifactId : ""];
+  const { contractName, abi } = artifact;
 
-  const [inputValues, setInputValues] = useState(
-    getDefaultInputValues(fnInputs)
-  );
+  const { name: fnName, inputs: fnInputs } = abi[fnIndex ? fnIndex : 0];
+
   const [isTxSigned, setIsTxSigned] = useState(false);
+
+  useEffect(() => {
+    const getBalance = async () => {
+      if (artifactId) {
+        const contractBalance = await getContractBalance(artifactId, artifact);
+        setContractBalanceCrypto(new BigNumber(contractBalance));
+      }
+    };
+
+    getBalance();
+  }, []);
 
   const availableAmount = useMemo(() => {
     let result = new BigNumber(0);
@@ -289,23 +283,47 @@ const ContractTxSetupScreen = ({
     return formatAmount(availableAmount, coinDecimals);
   }, [availableAmount, coinDecimals]);
 
+  const contractBalanceDisplay = useMemo(() => {
+    return formatAmount(contractBalanceCrypto, coinDecimals);
+  }, [contractBalanceCrypto, coinDecimals]);
+
   const requiresSig = useMemo(() => {
     return fnInputs.reduce(
-      (hasSig: boolean, input: ContractFunctionInput) =>
-        hasSig || input.type === "sig",
+      (hasSig: boolean, functionInput) =>
+        hasSig || functionInput.type === "sig",
       false
     );
   }, [fnInputs]);
 
   const inputsWithoutSig = useMemo(() => {
-    return fnInputs.filter(
-      (input: ContractFunctionInput) => input.type !== "sig"
-    );
+    return fnInputs.filter(functionInput => functionInput.type !== "sig");
   }, [fnInputs]);
 
   const fiatAmountTotal = useMemo(() => {
     return computeFiatAmount(availableAmount, spotPrices, fiatCurrency, "bch");
   }, [availableAmount, fiatCurrency, spotPrices]);
+
+  const fiatDisplayTotal = formatFiatAmount(
+    fiatAmountTotal,
+    fiatCurrency,
+    "bch"
+  );
+
+  const fiatContractBalance = useMemo(() => {
+    if (!contractBalanceCrypto) return null;
+    return computeFiatAmount(
+      contractBalanceCrypto,
+      spotPrices,
+      fiatCurrency,
+      "bch"
+    );
+  }, [contractBalanceCrypto, fiatCurrency, spotPrices]);
+
+  const fiatContractBalanceDisplay = formatFiatAmount(
+    fiatContractBalance,
+    fiatCurrency,
+    "bch"
+  );
 
   const fiatRate = useMemo(() => {
     return (
@@ -313,79 +331,97 @@ const ContractTxSetupScreen = ({
     );
   }, [spotPrices, fiatCurrency]);
 
+  const imageSource = useMemo(() => getTokenImage(), []);
+
   const toggleAmountType = useCallback(() => {
     setAmountType(amountType === "crypto" ? "fiat" : "crypto");
   }, [amountType]);
 
   const goNextStep = useCallback(() => {
     let hasErrors = false;
-
-    if (!availableFunds || new BigNumber(sendAmountCrypto).gt(availableFunds)) {
-      setErrors(["Cannot send more funds than are available"]);
+    const spendAmountSatoshis = new BigNumber(spendAmountCrypto).shiftedBy(
+      coinDecimals
+    );
+    if (
+      !contractBalanceCrypto ||
+      spendAmountSatoshis.gt(contractBalanceCrypto)
+    ) {
+      setErrors(["Cannot spend more funds than are available"]);
       hasErrors = true;
     }
 
-    // Check if inputs are correct
-    fnInputs.forEach(
-      (functionInput: ContractFunctionInput) => {
-        const inputValue: any = inputValues[functionInput.name];
-        switch (functionInput.type) {
-          case "pubkey":
-            if(!SLP.Address.isCashAddress(inputValue)) {
-              setErrors([`Invalid address provided to ${functionInput.name}`]);
-              hasErrors = true;
-            }
-            break;
-          default:
-            hasErrors = false;
-            break;
-        }
-      }
-    );
+    if (!hasErrors) {
+      if (requiresSig && !isTxSigned) {
+        setShowSignatureOverlay(true);
+      } else {
+        // Create params array. Makes sure they are in correct order.
+        const params = fnInputs.map(functionInput => {
+          if (functionInput.type == "pubkey") {
+            return SLP.ECPair.toPublicKey(bchKeypair);
+          } else if (functionInput.type === "sig") {
+            return new Sig(bchKeypair);
+          }
+        });
 
-    if (!hasErrors && requiresSig && !isTxSigned) {
-      setShowSignatureOverlay(true);
-    } else {
-      console.log("Do transaction submit");
+        callArtifact(
+          artifactId,
+          artifact,
+          fnName,
+          params,
+          spendAmountSatoshis.toNumber()
+        );
+      }
     }
-  }, [availableFunds, navigation, sendAmount, sendAmountCrypto]);
+  }, [
+    address,
+    artifactId,
+    artifact,
+    isTxSigned,
+    availableFunds,
+    spendAmount,
+    spendAmountCrypto
+  ]);
 
   useEffect(() => {
-    const sendAmountNumber = parseFloat(sendAmount);
+    const spendAmountNumber = parseFloat(spendAmount);
 
     if (amountType === "crypto") {
-      setSendAmountFiat(
+      setSpendAmountFiat(
         fiatRate
-          ? (fiatRate * (sendAmountNumber || 0)).toFixed(
+          ? (fiatRate * (spendAmountNumber || 0)).toFixed(
               currencyDecimalMap[fiatCurrency]
             )
           : "0"
       );
-      setSendAmountCrypto(sendAmount);
+      setSpendAmountCrypto(spendAmount);
     }
 
     if (amountType === "fiat") {
-      setSendAmountFiat(
-        (sendAmountNumber || 0).toFixed(currencyDecimalMap[fiatCurrency])
+      setSpendAmountFiat(
+        (spendAmountNumber || 0).toFixed(currencyDecimalMap[fiatCurrency])
       );
-      setSendAmountCrypto(
-        fiatRate && sendAmountNumber
-          ? (sendAmountNumber / fiatRate).toFixed(8)
+      setSpendAmountCrypto(
+        fiatRate && spendAmountNumber
+          ? (spendAmountNumber / fiatRate).toFixed(8)
           : "0"
       );
     }
-  }, [amountType, fiatRate, fiatCurrency, sendAmount]);
+  }, [amountType, fiatRate, fiatCurrency, spendAmount]);
 
-  const sendAmountFiatFormatted = useMemo(() => {
-    return formatFiatAmount(new BigNumber(sendAmountFiat), fiatCurrency, "bch");
-  }, [fiatCurrency, sendAmountFiat]);
+  const spendAmountFiatFormatted = useMemo(() => {
+    return formatFiatAmount(
+      new BigNumber(spendAmountFiat),
+      fiatCurrency,
+      "bch"
+    );
+  }, [fiatCurrency, spendAmountFiat]);
 
-  const sendAmountCryptoFormatted = useMemo(() => {
-    if (sendAmountCrypto.length) {
-      return new BigNumber(sendAmountCrypto).toFormat();
+  const spendAmountCryptoFormatted = useMemo(() => {
+    if (spendAmountCrypto.length) {
+      return new BigNumber(spendAmountCrypto).toFormat();
     }
     return "0";
-  }, [sendAmountCrypto]);
+  }, [spendAmountCrypto]);
 
   return (
     <SafeAreaView
@@ -397,8 +433,8 @@ const ContractTxSetupScreen = ({
       <ScreenWrapper>
         {showSignatureOverlay && (
           <SignTransactionOverlay>
-            <Spacer small />
             <H2 center>This transanction requires a signiture</H2>
+            <Spacer />
             <View>
               <SwipeButton
                 swipeFn={() => {
@@ -431,11 +467,15 @@ const ContractTxSetupScreen = ({
             keyboardVerticalOffset={Header.HEIGHT + 20}
           >
             <Spacer small />
+
             <TitleRow>
               <H1>
                 {contractName} ({fnName})
               </H1>
             </TitleRow>
+            <IconArea>
+              <IconImage source={imageSource} />
+            </IconArea>
             <Spacer small />
             {errors.length > 0 && (
               <>
@@ -449,8 +489,33 @@ const ContractTxSetupScreen = ({
                 <Spacer small />
               </>
             )}
-            <H2 center>{availableFundsDisplay}</H2>
-            {inputsWithoutSig.map((functionInput: ContractFunctionInput) => (
+            <View
+              style={{ flexDirection: "row", justifyContent: "space-between" }}
+            >
+              <View>
+                <T center>Your Balance (BCH)</T>
+                <H2 center>{availableFundsDisplay}</H2>
+
+                {fiatDisplayTotal && (
+                  <T center type="muted">
+                    {fiatDisplayTotal}
+                  </T>
+                )}
+              </View>
+              <Spacer />
+              <View>
+                <T center>Contract Balance (BCH)</T>
+                <H2 center>{contractBalanceDisplay}</H2>
+
+                {fiatContractBalanceDisplay && (
+                  <T center type="muted">
+                    {fiatContractBalanceDisplay}
+                  </T>
+                )}
+              </View>
+            </View>
+
+            {inputsWithoutSig.map(functionInput => (
               <View key={functionInput.name}>
                 <Spacer small />
                 <T>
@@ -471,13 +536,13 @@ const ContractTxSetupScreen = ({
             ))}
             <Spacer />
             <AmountRow>
-              <T>Amount:</T>
+              <T>Spend Amount:</T>
               <View>
                 <T size="small" monospace right>
-                  {sendAmountCryptoFormatted || "0"}
+                  {spendAmountCryptoFormatted || "0"}
                 </T>
                 <T size="small" monospace right>
-                  {sendAmountFiatFormatted}
+                  {spendAmountFiatFormatted}
                 </T>
               </View>
             </AmountRow>
@@ -495,15 +560,15 @@ const ContractTxSetupScreen = ({
                 autoCompleteType="off"
                 autoCorrect={false}
                 autoCapitalize="none"
-                value={sendAmount}
+                value={spendAmount}
                 onChangeText={text => {
                   setErrors([]);
 
                   if (amountType === "crypto") {
                     coinDecimals != null &&
-                      setSendAmount(formatAmountInput(text, coinDecimals));
+                      setSpendAmount(formatAmountInput(text, coinDecimals));
                   } else if (amountType === "fiat") {
-                    setSendAmount(
+                    setSpendAmount(
                       formatAmountInput(text, currencyDecimalMap[fiatCurrency])
                     );
                   }
@@ -515,25 +580,23 @@ const ContractTxSetupScreen = ({
               <StyledButton nature="ghost" onPress={toggleAmountType}>
                 <T center spacing="loose" type="primary" size="small">
                   <Ionicons name="ios-swap" size={18} />{" "}
-                  {amountType === "crypto"
-                    ? fiatCurrency.toUpperCase()
-                    : "BCH"}
+                  {amountType === "crypto" ? fiatCurrency.toUpperCase() : "BCH"}
                 </T>
               </StyledButton>
 
               <StyledButton
                 nature="ghost"
                 onPress={() => {
-                  setSendAmount(
+                  setSpendAmount(
                     amountType === "crypto"
-                      ? `${availableFunds}`
-                      : `${fiatAmountTotal}`
+                      ? `${contractBalanceDisplay}`
+                      : `${fiatContractBalance}`
                   );
                   setErrors([]);
                 }}
               >
                 <T center spacing="loose" type="primary" size="small">
-                  <Ionicons name="ios-color-wand" size={18} /> Send Max
+                  <Ionicons name="ios-color-wand" size={18} /> Spend Max
                 </T>
               </StyledButton>
             </AmountButtonArea>
@@ -542,8 +605,13 @@ const ContractTxSetupScreen = ({
           <Spacer fill />
           <Spacer small />
           <ActionButtonArea>
-            {requiresSig && !isTxSigned && <Button onPress={goNextStep} text="Next Step" />}
-            {!requiresSig || isTxSigned && <Button onPress={goNextStep} text="Send" />}
+            {requiresSig && !isTxSigned && (
+              <Button onPress={goNextStep} text="Next Step" />
+            )}
+            {!requiresSig ||
+              (isTxSigned && isTxSigned && (
+                <Button onPress={goNextStep} text="Send" />
+              ))}
             <Spacer small />
             <Button
               nature="cautionGhost"

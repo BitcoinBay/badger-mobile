@@ -3,7 +3,6 @@ import styled from "styled-components";
 import { SafeAreaView, View } from "react-native";
 import { NavigationScreenProps } from "react-navigation";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
-import { connect, ConnectedProps } from "react-redux";
 
 import { Button, T, H1, H2, Spacer } from "../atoms";
 
@@ -43,17 +42,6 @@ type PropsFromParent = NavigationScreenProps & {
   };
 };
 
-type ContracInput = {
-  name: string;
-  type: string;
-};
-
-type ContractFunction = {
-  name: string;
-  covenant: boolean;
-  inputs: ContracInput[];
-};
-
 type Props = PropsFromParent;
 
 const ContractScreen = ({ navigation }: Props) => {
@@ -61,7 +49,7 @@ const ContractScreen = ({ navigation }: Props) => {
   const { abi, contractName } = artifact;
   const [inputDropdownsToggled, setInputDropDownsToggled] = useState(
     abi.reduce(
-      (accumulatorObj: object, currentFn: ContractFunction) => ({
+      (accumulatorObj: object, currentFn: any) => ({
         ...accumulatorObj,
         [currentFn.name]: true
       }),
@@ -84,7 +72,7 @@ const ContractScreen = ({ navigation }: Props) => {
         <SecondaryHeaderWrapper>
           <H2 type="muted">Functions</H2>
         </SecondaryHeaderWrapper>
-        {abi.map((fn: ContractFunction, fnIndex: Number) => (
+        {abi.map((fn: any, fnIndex: Number) => (
           <View key={fn.name}>
             <StyledButton
               onPress={() =>
@@ -99,10 +87,9 @@ const ContractScreen = ({ navigation }: Props) => {
                 {fn.name}
               </T>
               <FontAwesome
-                iconStyle={{ marginLeft: 5, marginRight: 5 }}
+                style={{ marginLeft: 5, marginRight: 5 }}
                 size={30}
                 color="#fff"
-                backgroundColor="transparent"
                 name={
                   inputDropdownsToggled[fn.name] ? "angle-up" : "angle-down"
                 }
@@ -113,7 +100,7 @@ const ContractScreen = ({ navigation }: Props) => {
                 <T weight="bold" type="muted2">
                   Inputs
                 </T>
-                {fn.inputs.map((input: ContracInput) => (
+                {fn.inputs.map((input: any) => (
                   <View key={input.name}>
                     <Spacer tiny />
                     <T>
@@ -128,10 +115,7 @@ const ContractScreen = ({ navigation }: Props) => {
                   onPress={() =>
                     navigation.navigate("ContractTxSetupScreen", {
                       artifactId,
-                      contractName: artifact.contractName,
-                      fnInputs: fn.inputs,
-                      fnIndex: fnIndex,
-                      fnName: fn.name
+                      fnIndex: fnIndex
                     })
                   }
                 />

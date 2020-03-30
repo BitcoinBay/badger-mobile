@@ -10,6 +10,23 @@ const activeAccountIdSelector = (state: FullState) => state.accounts.activeId;
 const keypairsByAccountSelector = (state: FullState) =>
   state.accounts.keypairsByAccount;
 
+const bchKeypairByAccountSelector = (
+  state: FullState,
+  address?: string | null
+) => {
+  if (!address) return null;
+
+  const { keypairsByAccount } = state.accounts;
+
+  if (!keypairsByAccount) return null;
+
+  const accountKeypairs = keypairsByAccount[address];
+
+  if (!accountKeypairs) return null;
+
+  return accountKeypairs.bch;
+};
+
 const activeAccountSelector = createSelector(
   accountsByIdSelector,
   activeAccountIdSelector,
@@ -51,6 +68,7 @@ const getSeedViewedSelector = createSelector(activeAccountSelector, account => {
 
 export {
   activeAccountIdSelector,
+  bchKeypairByAccountSelector,
   activeAccountSelector,
   accountsByIdSelector,
   getAddressSelector,

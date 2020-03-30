@@ -1,28 +1,37 @@
 import { SLP } from "./slp-sdk-utils";
 import { Contract, Instance, Sig } from "cashscript";
-import { BITBOX } from "bitbox-sdk";
-import path from "path";
+import P2pkhAbi from "./P2PKH.json";
 
 const deriveP2SH = (addr: string) => {
   const pkh = new Buffer.from(SLP.Address.cashToHash160(addr), "hex");
 
-  const P2PKH: Contract = Contract.compile(
-    `pragma cashscript ^0.3.3;
-
-    contract P2PKH(bytes20 pkh) {
-        // Require pk to match stored pkh and signature to match
-        function spend(pubkey pk, sig s) {
-            require(hash160(pk) == pkh);
-            require(checkSig(s, pk));
-        }
-    }
-    `,
-    "mainnet"
-  );
+  const P2PKH: Contract = Contract.compile(P2pkhAbi.source, "mainnet");
   const instance: Instance = P2PKH.new(pkh);
   const artifact = P2PKH.artifact;
 
   return { artifact };
 };
 
-export { deriveP2SH };
+const callContract = async (
+  artifactId: string,
+  artifact,
+  fnName: string,
+  params: Array<any>,
+  sendAmount: number
+) => {
+  const contract: Contract = Contract.import(artifact, "mainnet");
+  const instance: Instance = contract.deployed(artifactId);
+
+  const fn = instance.functions[fnName];
+  const tx = await fn(...params).send(instance.address, sendAmount);
+  console.log(tx);
+};
+
+const getContractBalance = async (artifactId: string, artifact) => {
+  const contract: Contract = Contract.import(artifact, "mainnet");
+  const instance: Instance = contract.deployed(artifactId);
+
+  return await instance.getBalance();
+};
+
+export { deriveP2SH, callContract, getContractBalance };

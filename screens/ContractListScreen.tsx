@@ -76,12 +76,22 @@ const ContractListScreen = ({
                   })
                 }
               >
-                <T type="primary">{artifactsById[artifactId].contractName}</T>
+                <T type="primary" style={{ flexGrow: 1 }}>
+                  {artifactsById[artifactId].contractName}
+                </T>
                 <T size="xsmall" type="muted2">
                   {artifactId}
                 </T>
+                <Spacer tiny />
+                <Button
+                  onPress={() =>
+                    navigation.navigate("SendSetup", {
+                      defaultToAddress: artifactId
+                    })
+                  }
+                  text="Fund"
+                />
               </Button>
-              <Spacer tiny />
             </View>
           ))}
           <Spacer />
