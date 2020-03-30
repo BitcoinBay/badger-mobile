@@ -354,7 +354,7 @@ const HomeScreen = ({
             />
             <Button
               onPress={() => {
-                navigation.navigate("ContractScreen");
+                navigation.navigate("ContractListScreen");
               }}
               text="Contracts"
             />

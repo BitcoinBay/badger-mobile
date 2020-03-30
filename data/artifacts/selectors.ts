@@ -36,6 +36,7 @@ const getArtifactSelector = createSelector(activeArtifactSelector, artifact => {
 });
 
 export {
+  artifactsByIdSelector,
   activeArtifactIdSelector,
   getArtifactSelector,
   artifactsAllIdsSelector,

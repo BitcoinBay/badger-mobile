@@ -207,9 +207,23 @@ const SendSetupScreen = ({
   fiatCurrency,
   updateTokensMeta
 }: Props) => {
+  const {
+    tokenId,
+    uriAddress,
+    uriAmount,
+    uriError,
+    defaultToAddress
+  } = (navigation.state && navigation.state.params) || {
+    tokenId: null,
+    uriAddress: null,
+    uriAmount: null,
+    uriError: null,
+    defaultToAddress: ""
+  };
+
   const [qrOpen, setQrOpen] = useState(false);
 
-  const [toAddress, setToAddress] = useState("");
+  const [toAddress, setToAddress] = useState(defaultToAddress || "");
 
   const [sendAmount, setSendAmount] = useState("");
   const [sendAmountFiat, setSendAmountFiat] = useState("0");
@@ -217,14 +231,6 @@ const SendSetupScreen = ({
   const [amountType, setAmountType] = useState("crypto");
 
   const [errors, setErrors] = useState<string[]>([] as string[]);
-
-  const { tokenId, uriAddress, uriAmount, uriError } = (navigation.state &&
-    navigation.state.params) || {
-    tokenId: null,
-    uriAddress: null,
-    uriAmount: null,
-    uriError: null
-  };
 
   // Set initial values from paramaters, used when opening from URI
   useEffect(() => {
