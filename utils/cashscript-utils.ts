@@ -2,6 +2,7 @@ import { SLP } from "./slp-sdk-utils";
 import { Contract, Instance, Sig } from "cashscript";
 import P2pkhAbi from "./P2PKH.json";
 
+
 const deriveP2SH = (addr: string) => {
   const pkh = new Buffer.from(SLP.Address.cashToHash160(addr), "hex");
 
