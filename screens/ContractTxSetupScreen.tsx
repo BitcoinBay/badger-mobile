@@ -188,6 +188,36 @@ const ErrorContainer = styled(View)`
   background-color: ${props => props.theme.danger700};
 `;
 
+const defaultInputValues = {
+  P2PKH: {
+    spend: null
+  },
+  SLPWallet: {
+    reclaim: null,
+    SLPGenesis: {
+      ticker: "",
+      name: "",
+      url: "",
+      hash: "0x00",
+      decimal: "8",
+      mintVout: "",
+      initialSupply: "1000000"
+    },
+    SLPMint: {
+      receiveMint: "",
+      tokenId: "",
+      mintVout: "",
+      additionalSupply: "100000"
+    },
+    SLPSend: {
+      SLPReceiver: "",
+      tokenId: "",
+      sendSLPAmount: "1000",
+      changeSLPAmount: "0"
+    }
+  }
+};
+
 const ContractTxSetupScreen = ({
   navigation,
   address,
@@ -199,6 +229,11 @@ const ContractTxSetupScreen = ({
   artifacts,
   callArtifact
 }: Props) => {
+  const { artifactId, fnIndex } = navigation.state.params;
+  const artifact = artifacts[artifactId ? artifactId : ""];
+  const { contractName, abi } = artifact;
+  const { name: fnName, inputs: fnInputs } = abi[fnIndex ? fnIndex : 0];
+
   const [spendAmount, setSpendAmount] = useState("");
   const [spendAmountFiat, setSpendAmountFiat] = useState("0");
   const [spendAmountCrypto, setSpendAmountCrypto] = useState("0");
@@ -206,22 +241,18 @@ const ContractTxSetupScreen = ({
   const [contractBalanceCrypto, setContractBalanceCrypto] = useState(
     new BigNumber("0")
   );
-
+  const [isTxSigned, setIsTxSigned] = useState(false);
   const [errors, setErrors] = useState<string[]>([] as string[]);
   const [showSignatureOverlay, setShowSignatureOverlay] = useState(false);
 
-  const { artifactId, fnIndex } = navigation.state.params;
+  const [inputValues, setInputValues] = useState(
+    defaultInputValues[contractName][fnName]
+  );
+
   if (!artifactId || typeof fnIndex !== "number") {
     navigation.goBack();
     return <View></View>;
   }
-
-  const artifact = artifacts[artifactId ? artifactId : ""];
-  const { contractName, abi } = artifact;
-
-  const { name: fnName, inputs: fnInputs } = abi[fnIndex ? fnIndex : 0];
-
-  const [isTxSigned, setIsTxSigned] = useState(false);
 
   useEffect(() => {
     const getBalance = async () => {
@@ -339,29 +370,102 @@ const ContractTxSetupScreen = ({
 
   const goNextStep = useCallback(() => {
     let hasErrors = false;
+
     const spendAmountSatoshis = new BigNumber(spendAmountCrypto).shiftedBy(
       coinDecimals
     );
     if (
-      !contractBalanceCrypto ||
+      (fnName === "spend" && !contractBalanceCrypto) ||
       spendAmountSatoshis.gt(contractBalanceCrypto)
     ) {
       setErrors(["Cannot spend more funds than are available"]);
       hasErrors = true;
     }
 
+    if (fnName === "SLPGenesis") {
+      const { ticker, name, decimal, mintVout, initialSupply } = inputValues;
+      const re = /[0-9A-Fa-f]{2}/g;
+
+      if (!ticker) {
+        setErrors(["Ticker symbol cannot be empty"]);
+        hasErrors = true;
+      }
+
+      if (!name) {
+        setErrors(["Token name cannot be empty"]);
+        hasErrors = true;
+      }
+
+      if (isNaN(decimal)) {
+        setErrors(["Number of decimals has to be a number between 0 and 255"]);
+        hasErrors = true;
+      } else {
+        const bn = new BigNumber(decimal);
+        if (!bn.isInteger()) {
+          setErrors(["Number of decimals cannot have fractions"]);
+          hasErrors = true;
+        } else if (bn.lt(0) || bn.gt(255)) {
+          setErrors([
+            "Number of decimals has to be a number between 0 and 255"
+          ]);
+          hasErrors = true;
+        }
+      }
+
+      if (mintVout && !re.test(mintVout)) {
+        setErrors(["Invalid minting baton"]);
+        hasErrors = true;
+      }
+      console.log(initialSupply);
+      if (isNaN(initialSupply)) {
+        setErrors(["Additional Supply has to be a number"]);
+        hasErrors = true;
+      } else {
+        const bn = new BigNumber(initialSupply);
+
+        if (!bn.isInteger()) {
+          setErrors(["Additional Supply cannot have fractions"]);
+          hasErrors = true;
+        } else if (bn.isNegative()) {
+          setErrors(["Additional Supply cannot be a negative number"]);
+          hasErrors = true;
+        }
+      }
+    }
+
     if (!hasErrors) {
       if (requiresSig && !isTxSigned) {
         setShowSignatureOverlay(true);
       } else {
-        // Create params array. Makes sure they are in correct order.
-        const params = fnInputs.map(functionInput => {
-          if (functionInput.type == "pubkey") {
-            return SLP.ECPair.toPublicKey(bchKeypair);
-          } else if (functionInput.type === "sig") {
-            return new Sig(bchKeypair);
-          }
-        });
+        let params;
+
+        if (fnName === "spend" || fnName === "reclaim") {
+          params = [SLP.ECPair.toPublicKey(bchKeypair), new Sig(bchKeypair)];
+        }
+
+        if (fnName === "SLPGenesis") {
+          let decimalBuffer = new ArrayBuffer(1);
+          new DataView(decimalBuffer).setUint8(0, inputValues.decimal);
+          let initialSupplyBuffer = new ArrayBuffer(8);
+          new DataView(initialSupplyBuffer).setBigUint64(
+            0,
+            inputValues.initialSupply
+          );
+
+          params = [
+            SLP.ECPair.toPublicKey(bchKeypair),
+            new Sig(bchKeypair),
+            Buffer.from(inputValues.ticker),
+            Buffer.from(inputValues.name),
+            Buffer.from(inputValues.url),
+            Buffer.alloc(32),
+            Buffer.from(new Uint8Array(decimalBuffer)),
+            inputValues.mintVout
+              ? Buffer.from(inputValues.mintVout, "hex")
+              : Buffer.alloc(1),
+            Buffer.from(new Uint8Array(initialSupplyBuffer))
+          ];
+        }
 
         callArtifact(
           artifactId,
@@ -422,6 +526,209 @@ const ContractTxSetupScreen = ({
     }
     return "0";
   }, [spendAmountCrypto]);
+
+  const getInputElems = useMemo(() => {
+    if (
+      (contractName === "P2PKH" && fnName === "spend") ||
+      (contractName === "SLPWallet" && fnName === "reclaim")
+    ) {
+      return (
+        <View>
+          <T>Your Public Key</T>
+          <Spacer tiny />
+          <StyledTextInput editable={false} multiline value={address} />
+        </View>
+      );
+    } else if (contractName === "SLPWallet") {
+      if (fnName === "SLPGenesis") {
+        return (
+          <View>
+            <T>Ticker Symbol</T>
+            <Spacer tiny />
+            <StyledTextInput
+              editable
+              multiline
+              placeholder="ABC-DE"
+              value={inputValues["ticker"]}
+              onChangeText={text => {
+                setInputValues({ ...inputValues, ticker: text });
+              }}
+            />
+            <Spacer tiny />
+            <T>Token Name</T>
+            <Spacer tiny />
+            <StyledTextInput
+              editable
+              multiline
+              onChangeText={text =>
+                setInputValues({ ...inputValues, name: text })
+              }
+              value={inputValues["name"]}
+            />
+            <Spacer tiny />
+            <T>URL</T>
+            <Spacer tiny />
+            <StyledTextInput
+              editable
+              multiline
+              placeholder="Optional"
+              onChangeText={text =>
+                setInputValues({ ...inputValues, url: text })
+              }
+              value={inputValues["url"]}
+            />
+            <Spacer tiny />
+            <View style={{ flexDirection: "row" }}>
+              <View style={{ flexGrow: 1 }}>
+                <T>Decimals</T>
+                <Spacer tiny />
+                <StyledTextInput
+                  editable
+                  multiline
+                  keyboardType="numeric"
+                  onChangeText={text =>
+                    setInputValues({ ...inputValues, decimal: text })
+                  }
+                  value={inputValues["decimal"]}
+                />
+              </View>
+              <View style={{ flexGrow: 1 }}>
+                <T>Minting Baton</T>
+                <Spacer tiny />
+                <StyledTextInput
+                  editable
+                  multiline
+                  placeholder="0x0000"
+                  onChangeText={text =>
+                    setInputValues({ ...inputValues, mintVout: text })
+                  }
+                  value={inputValues["mintVout"]}
+                />
+              </View>
+            </View>
+            <Spacer tiny />
+            <T>Initial Supply</T>
+            <Spacer tiny />
+            <StyledTextInput
+              editable
+              multiline
+              keyboardType="numeric"
+              onChangeText={text =>
+                setInputValues({ ...inputValues, initialSupply: text })
+              }
+              value={inputValues["initialSupply"]}
+            />
+          </View>
+        );
+      }
+
+      if (fnName === "SLPMint") {
+        return (
+          <View>
+            <T>Receiver</T>
+            <Spacer tiny />
+            <StyledTextInput
+              editable
+              multiline
+              onChangeText={text =>
+                setInputValues({ ...inputValues, receiveMint: text })
+              }
+              value={inputValues["receiveMint"]}
+            />
+            <T>Token Id</T>
+            <Spacer tiny />
+            <StyledTextInput
+              editable
+              multiline
+              onChangeText={text =>
+                setInputValues({ ...inputValues, tokenId: text })
+              }
+              value={inputValues["tokenId"]}
+            />
+            <T>Minting Baton</T>
+            <Spacer tiny />
+            <StyledTextInput
+              editable
+              multiline
+              onChangeText={text =>
+                setInputValues({ ...inputValues, mintVout: text })
+              }
+              value={inputValues["mintVout"]}
+            />
+            <T>Additional Supply</T>
+            <Spacer tiny />
+            <StyledTextInput
+              editable
+              multiline
+              keyboardType="numeric"
+              onChangeText={text =>
+                setInputValues({ ...inputValues, additionalSupply: text })
+              }
+              value={inputValues["additionalSupply"]}
+            />
+          </View>
+        );
+      }
+
+      if (fnName === "SLPSend") {
+        return (
+          <View>
+            <T>Your Public Key</T>
+            <Spacer tiny />
+            <StyledTextInput editable={false} multiline value={address} />
+            <T>Receiver</T>
+            <Spacer tiny />
+            <StyledTextInput
+              editable
+              multiline
+              onChangeText={text =>
+                setInputValues({ ...inputValues, SLPReceiver: text })
+              }
+              value={inputValues["SLPReceiver"]}
+            />
+            <T>Token Id</T>
+            <Spacer tiny />
+            <StyledTextInput
+              editable
+              multiline
+              onChangeText={text =>
+                setInputValues({ ...inputValues, tokenId: text })
+              }
+              value={inputValues["tokenId"]}
+            />
+            <View>
+              <View style={{ flexGrow: 1 }}>
+                <T>Send Amount</T>
+                <Spacer tiny />
+                <StyledTextInput
+                  editable
+                  multiline
+                  keyboardType="numeric"
+                  onChangeText={text =>
+                    setInputValues({ ...inputValues, sendSLPAmount: text })
+                  }
+                  value={inputValues["sendSLPAmount"]}
+                />
+              </View>
+              <View style={{ flexGrow: 1 }}>
+                <T>Change Amount</T>
+                <Spacer tiny />
+                <StyledTextInput
+                  editable
+                  multiline
+                  keyboardType="numeric"
+                  onChangeText={text =>
+                    setInputValues({ ...inputValues, changeSLPAmount: text })
+                  }
+                  value={inputValues["changeSLPAmount"]}
+                />
+              </View>
+            </View>
+          </View>
+        );
+      }
+    }
+  }, [contractName, fnInputs, inputValues]);
 
   return (
     <SafeAreaView
@@ -514,93 +821,86 @@ const ContractTxSetupScreen = ({
                 )}
               </View>
             </View>
-
-            {inputsWithoutSig.map(functionInput => (
-              <View key={functionInput.name}>
-                <Spacer small />
-                <T>
-                  {functionInput.name} (
-                  {getReadableInputType(functionInput.type)}):
-                </T>
-                <Spacer tiny />
-                <View>
-                  {functionInput.type === "pubkey" && (
-                    <StyledTextInput
-                      editable={false}
-                      multiline
-                      value={address}
-                    />
-                  )}
-                </View>
-              </View>
-            ))}
             <Spacer />
-            <AmountRow>
-              <T>Spend Amount:</T>
-              <View>
-                <T size="small" monospace right>
-                  {spendAmountCryptoFormatted || "0"}
-                </T>
-                <T size="small" monospace right>
-                  {spendAmountFiatFormatted}
-                </T>
-              </View>
-            </AmountRow>
-            <Spacer tiny />
-            <AmountInputRow>
-              <AmountLabel>
-                <T type="muted2" weight="bold">
-                  {amountType === "crypto" ? "BCH" : fiatCurrency.toUpperCase()}
-                </T>
-              </AmountLabel>
-              <StyledTextInputAmount
-                keyboardType="numeric"
-                editable
-                placeholder="0.0"
-                autoCompleteType="off"
-                autoCorrect={false}
-                autoCapitalize="none"
-                value={spendAmount}
-                onChangeText={text => {
-                  setErrors([]);
+            {getInputElems}
+            {contractName === "P2PKH" && (
+              <>
+                <Spacer />
+                <AmountRow>
+                  <T>Spend Amount:</T>
+                  <View>
+                    <T size="small" monospace right>
+                      {spendAmountCryptoFormatted || "0"}
+                    </T>
+                    <T size="small" monospace right>
+                      {spendAmountFiatFormatted}
+                    </T>
+                  </View>
+                </AmountRow>
+                <Spacer tiny />
+                <AmountInputRow>
+                  <AmountLabel>
+                    <T type="muted2" weight="bold">
+                      {amountType === "crypto"
+                        ? "BCH"
+                        : fiatCurrency.toUpperCase()}
+                    </T>
+                  </AmountLabel>
+                  <StyledTextInputAmount
+                    keyboardType="numeric"
+                    editable
+                    placeholder="0.0"
+                    autoCompleteType="off"
+                    autoCorrect={false}
+                    autoCapitalize="none"
+                    value={spendAmount}
+                    onChangeText={text => {
+                      setErrors([]);
 
-                  if (amountType === "crypto") {
-                    coinDecimals != null &&
-                      setSpendAmount(formatAmountInput(text, coinDecimals));
-                  } else if (amountType === "fiat") {
-                    setSpendAmount(
-                      formatAmountInput(text, currencyDecimalMap[fiatCurrency])
-                    );
-                  }
-                }}
-              />
-            </AmountInputRow>
-            <Spacer tiny />
-            <AmountButtonArea>
-              <StyledButton nature="ghost" onPress={toggleAmountType}>
-                <T center spacing="loose" type="primary" size="small">
-                  <Ionicons name="ios-swap" size={18} />{" "}
-                  {amountType === "crypto" ? fiatCurrency.toUpperCase() : "BCH"}
-                </T>
-              </StyledButton>
+                      if (amountType === "crypto") {
+                        coinDecimals != null &&
+                          setSpendAmount(formatAmountInput(text, coinDecimals));
+                      } else if (amountType === "fiat") {
+                        setSpendAmount(
+                          formatAmountInput(
+                            text,
+                            currencyDecimalMap[fiatCurrency]
+                          )
+                        );
+                      }
+                    }}
+                  />
+                </AmountInputRow>
+                <Spacer tiny />
+                <AmountButtonArea>
+                  <StyledButton nature="ghost" onPress={toggleAmountType}>
+                    <T center spacing="loose" type="primary" size="small">
+                      <Ionicons name="ios-swap" size={18} />{" "}
+                      {amountType === "crypto"
+                        ? fiatCurrency.toUpperCase()
+                        : "BCH"}
+                    </T>
+                  </StyledButton>
 
-              <StyledButton
-                nature="ghost"
-                onPress={() => {
-                  setSpendAmount(
-                    amountType === "crypto"
-                      ? `${contractBalanceDisplay}`
-                      : `${fiatContractBalance}`
-                  );
-                  setErrors([]);
-                }}
-              >
-                <T center spacing="loose" type="primary" size="small">
-                  <Ionicons name="ios-color-wand" size={18} /> Spend Max
-                </T>
-              </StyledButton>
-            </AmountButtonArea>
-            <Spacer small />
+                  <StyledButton
+                    nature="ghost"
+                    onPress={() => {
+                      setSpendAmount(
+                        amountType === "crypto"
+                          ? `${contractBalanceDisplay}`
+                          : `${fiatContractBalance}`
+                      );
+                      setErrors([]);
+                    }}
+                  >
+                    <T center spacing="loose" type="primary" size="small">
+                      <Ionicons name="ios-color-wand" size={18} /> Spend Max
+                    </T>
+                  </StyledButton>
+                </AmountButtonArea>
+                <Spacer small />
+              </>
+            )}
           </KeyboardAvoidingView>
           <Spacer fill />
           <Spacer small />

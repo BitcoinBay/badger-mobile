@@ -55,6 +55,7 @@
     "react-native-level-fs": "^3.0.1",
     "react-native-markdown-package": "^1.4.4",
     "react-native-permissions": "^2.0.8",
+    "react-native-popup-dialog": "^0.18.3",
     "react-native-qrcode-scanner": "^1.2.3",
     "react-native-qrcode-svg": "^6.0.3",
     "react-native-randombytes": "^3.5.3",
