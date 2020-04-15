@@ -25,6 +25,7 @@ import { ViewTermsOfUseScreen } from "../screens/TermsOfUseScreen";
 import { ViewPrivacyNoticeScreen } from "../screens/PrivacyNoticeScreen";
 
 import SendStack from "./SendStack";
+import ContractTxStack from "./ContractTxStack";
 
 import { spaceBadger as theme } from "../themes/spaceBadger";
 
@@ -61,12 +62,6 @@ const HomeStack = createStackNavigator(
       screen: ContractScreen,
       navigationOptions: {
         title: "Contract"
-      }
-    },
-    ContractTxSetupScreen: {
-      screen: ContractTxSetupScreen,
-      navigationOptions: {
-        title: "Contract Transaction"
       }
     }
   },
@@ -206,6 +201,7 @@ const MainAppStack = createStackNavigator(
   {
     MainAppTabs: BottomTabNavigator,
     SendStack,
+    ContractTxStack,
     ViewPrivacyPolicy: {
       screen: ViewPrivacyNoticeScreen
     },

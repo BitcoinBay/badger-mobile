@@ -54,7 +54,9 @@ const CreateWalletScreen = ({
     } else if (!isCreated) {
       getAccount();
     } else {
-      getP2SHAddress(accountAddress);
+      if (accountAddress) {
+        getP2SHAddress(accountAddress);
+      }
     }
   }, [isCreated, isP2SHAddressCreated]);
 
