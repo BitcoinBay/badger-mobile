@@ -8,9 +8,8 @@ import {
   CALL_ARTIFACT_FAIL
 } from "./constants";
 
-import { Artifact } from "./reducer";
-
 import {
+  Artifact,
   deriveP2SH,
   deriveSLPWallet,
   callContract
@@ -61,10 +60,10 @@ const getP2SHAddress = (addrString: string) => {
   };
 };
 
-const getSLPWallet = (addrString: string) => {
+const getSLPWallet = (addrString: string, type: string) => {
   return async (dispatch: Function, getState: Function) => {
     dispatch(getArtifactStart());
-    const { artifact } = deriveSLPWallet(addrString);
+    const { artifact } = deriveSLPWallet(addrString, type);
     dispatch(getArtifactSuccess(artifact));
   };
 };
@@ -74,7 +73,7 @@ const callArtifact = (
   artifact: Artifact,
   fnName: string,
   params: Array<any>,
-  spendAmount: number | null
+  spendAmount: number
 ) => {
   return async (dispatch: Function, getState: Function) => {
     dispatch(callArtifactStart());

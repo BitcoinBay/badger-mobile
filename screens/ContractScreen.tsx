@@ -114,7 +114,7 @@ const ContractScreen = ({ navigation }: Props) => {
                   <Button
                     text="interact"
                     onPress={() =>
-                      navigation.navigate("ContractTxSetupScreen", {
+                      navigation.navigate("ContractTxSetup", {
                         artifactId,
                         fnIndex: fnIndex
                       })

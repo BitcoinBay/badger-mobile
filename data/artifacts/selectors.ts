@@ -32,7 +32,7 @@ const activeArtifactSelector = createSelector(
 );
 
 const getArtifactSelector = createSelector(activeArtifactSelector, artifact => {
-  return artifact.networks ? artifact : null;
+  return artifact && artifact.networks ? artifact : null;
 });
 
 export {

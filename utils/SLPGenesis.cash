@@ -1,0 +1,39 @@
+pragma cashscript ^0.3.3;
+
+contract SLPGenesis(bytes20 ownerHash) {
+  function reclaim(pubkey pk, sig s) {
+    require(hash160(pk) == ownerHash);
+    require(checkSig(s, pk));
+  }
+
+  function SLPGenesis(pubkey pk, sig s, bytes ticker, bytes name, bytes url, bytes32 hash, bytes1 decimal, bytes1 mintVout, bytes8 initialSupply) {
+    require(hash160(pk) == ownerHash);
+    require(checkSig(s, pk));
+
+    bytes genesis = new OutputNullData([
+      0x534c5000,
+      0x01,
+      bytes('GENESIS'),
+      ticker,
+      name,
+      url,
+      hash,
+      decimal,
+      mintVout,
+      initialSupply
+    ]);
+
+    int dust = 546;
+    int minerFee = 1000;
+    int changeAmount = int(bytes(tx.value)) - dust - minerFee;
+
+    bytes32 initialReceiver = new OutputP2SH(bytes8(dust), hash160(tx.bytecode));
+
+    if (changeAmount >= minerFee) {
+      bytes32 change = new OutputP2SH(bytes8(changeAmount), hash160(tx.bytecode));
+      require(tx.hashOutputs == hash256(genesis + initialReceiver + change));
+    } else {
+      require(tx.hashOutputs == hash256(genesis + initialReceiver));
+    }
+  }
+}

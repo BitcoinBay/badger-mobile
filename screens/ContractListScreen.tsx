@@ -64,11 +64,24 @@ const ContractListScreen = ({
   navigation
 }: Props) => {
   const [showDialog, setShowDialog] = useState(false);
-  const [createContractType, setCreateContractType] = useState("SLP");
+  const [createContractType, setCreateContractType] = useState("SLPGenesis");
 
   const createContract = () => {
-    if (createContractType === "SLP") {
-      getSLPWallet(address);
+    switch (createContractType) {
+      case "SLPGenesis":
+        getSLPWallet(address, "GENESIS");
+        break;
+      case "SLPMint":
+        getSLPWallet(address, "MINT");
+        break;
+      case "SLPSend":
+        getSLPWallet(address, "SEND");
+        break;
+      case "P2PKH":
+        getP2SHAddress(address);
+        break;
+      default:
+        break;
     }
     setShowDialog(false);
   };
@@ -80,7 +93,6 @@ const ContractListScreen = ({
         visible={showDialog}
         width={0.9}
         rounded
-        actionsBordered
         dialogTitle={
           <DialogTitle
             title="Select a contract"
@@ -113,7 +125,10 @@ const ContractListScreen = ({
             selectedValue={createContractType}
             onValueChange={itemValue => setCreateContractType(itemValue)}
           >
-            <Picker.Item label="SLP" value="SLP" />
+            <Picker.Item label="P2PKH" value="P2PKH" />
+            <Picker.Item label="SLPGenesis" value="SLPGenesis" />
+            <Picker.Item label="SLPMint" value="SLPMint" />
+            <Picker.Item label="SLPSend" value="SLPSend" />
           </StyledPicker>
         </StyledDialogContent>
       </Dialog>
@@ -131,36 +146,34 @@ const ContractListScreen = ({
             <H2>Your Contracts</H2>
           </HeaderWrapper>
           {allArtifactIds.map(artifactId => (
-            <>
-              <View key={artifactId}>
+            <View key={artifactId}>
+              <Button
+                nature="ghost"
+                onPress={() =>
+                  navigation.navigate("ContractScreen", {
+                    artifactId,
+                    artifact: artifactsById[artifactId]
+                  })
+                }
+              >
+                <T type="primary" style={{ flexGrow: 1 }}>
+                  {artifactsById[artifactId].contractName}
+                </T>
+                <T size="xsmall" type="muted2">
+                  {artifactId}
+                </T>
+                <Spacer tiny />
                 <Button
-                  nature="ghost"
                   onPress={() =>
-                    navigation.navigate("ContractScreen", {
-                      artifactId,
-                      artifact: artifactsById[artifactId]
+                    navigation.navigate("SendSetup", {
+                      defaultToAddress: artifactId
                     })
                   }
-                >
-                  <T type="primary" style={{ flexGrow: 1 }}>
-                    {artifactsById[artifactId].contractName}
-                  </T>
-                  <T size="xsmall" type="muted2">
-                    {artifactId}
-                  </T>
-                  <Spacer tiny />
-                  <Button
-                    onPress={() =>
-                      navigation.navigate("SendSetup", {
-                        defaultToAddress: artifactId
-                      })
-                    }
-                    text="Fund"
-                  />
-                </Button>
-              </View>
+                  text="Fund"
+                />
+              </Button>
               <Spacer tiny />
-            </>
+            </View>
           ))}
           <Spacer />
           <Button onPress={() => setShowDialog(true)} text="Create Contract" />
