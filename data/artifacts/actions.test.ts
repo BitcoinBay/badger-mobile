@@ -6,9 +6,8 @@ import fetchMock from "fetch-mock";
 import * as actions from "./actions";
 import * as actionTypes from "./constants";
 import { FullState } from "../store";
-import { Artifact } from "./reducer";
 
-import { deriveP2SH, callContract } from "../../utils/cashscript-utils";
+import { deriveP2SH } from "../../utils/cashscript-utils";
 
 type DispatchExts = ThunkDispatch<FullState, void, AnyAction>;
 
@@ -34,7 +33,7 @@ describe("artifacts::action", () => {
 
   it("should create action for - Get artifact success", () => {
     const testAddr = "bitcoincash:qqakphm6jqeteh902n59h2jct706n4srpuzp95a5qh";
-    const { artifact } = deriveP2SH(testAddr) as Artifact;
+    const { artifact } = deriveP2SH(testAddr);
     const P2SHAddr = Object.keys(artifact.networks.mainnet);
     const address = P2SHAddr[0];
     const expectedAction = {

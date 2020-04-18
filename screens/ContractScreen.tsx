@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import { SafeAreaView, View } from "react-native";
+import { ScrollView, SafeAreaView, View } from "react-native";
 import { NavigationScreenProps } from "react-navigation";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
 
@@ -72,57 +72,59 @@ const ContractScreen = ({ navigation }: Props) => {
         <SecondaryHeaderWrapper>
           <H2 type="muted">Functions</H2>
         </SecondaryHeaderWrapper>
-        {abi.map((fn: any, fnIndex: Number) => (
-          <View key={fn.name}>
-            <StyledButton
-              onPress={() =>
-                setInputDropDownsToggled({
-                  ...inputDropdownsToggled,
-                  [fn.name]: !inputDropdownsToggled[fn.name]
-                })
-              }
-              style={{ flexDirection: "row" }}
-            >
-              <T weight="bold" type="inverse" style={{ flexGrow: 1 }}>
-                {fn.name}
-              </T>
-              <FontAwesome
-                style={{ marginLeft: 5, marginRight: 5 }}
-                size={30}
-                color="#fff"
-                name={
-                  inputDropdownsToggled[fn.name] ? "angle-up" : "angle-down"
+        <ScrollView>
+          {abi.map((fn: any, fnIndex: Number) => (
+            <View key={fn.name} style={{ marginBottom: 10 }}>
+              <StyledButton
+                onPress={() =>
+                  setInputDropDownsToggled({
+                    ...inputDropdownsToggled,
+                    [fn.name]: !inputDropdownsToggled[fn.name]
+                  })
                 }
-              />
-            </StyledButton>
-            {inputDropdownsToggled[fn.name] && (
-              <Dropdown>
-                <T weight="bold" type="muted2">
-                  Inputs
+                style={{ flexDirection: "row" }}
+              >
+                <T weight="bold" type="inverse" style={{ flexGrow: 1 }}>
+                  {fn.name}
                 </T>
-                {fn.inputs.map((input: any) => (
-                  <View key={input.name}>
-                    <Spacer tiny />
-                    <T>
-                      name: <T weight="bold">{input.name}</T>
-                      {"  "}type: <T weight="bold">{input.type}</T>
-                    </T>
-                  </View>
-                ))}
-                <Spacer />
-                <Button
-                  text="interact"
-                  onPress={() =>
-                    navigation.navigate("ContractTxSetupScreen", {
-                      artifactId,
-                      fnIndex: fnIndex
-                    })
+                <FontAwesome
+                  style={{ marginLeft: 5, marginRight: 5 }}
+                  size={30}
+                  color="#fff"
+                  name={
+                    inputDropdownsToggled[fn.name] ? "angle-up" : "angle-down"
                   }
                 />
-              </Dropdown>
-            )}
-          </View>
-        ))}
+              </StyledButton>
+              {inputDropdownsToggled[fn.name] && (
+                <Dropdown>
+                  <T weight="bold" type="muted2">
+                    Inputs
+                  </T>
+                  {fn.inputs.map((input: any) => (
+                    <View key={input.name}>
+                      <Spacer tiny />
+                      <T>
+                        name: <T weight="bold">{input.name}</T>
+                        {"  "}type: <T weight="bold">{input.type}</T>
+                      </T>
+                    </View>
+                  ))}
+                  <Spacer />
+                  <Button
+                    text="interact"
+                    onPress={() =>
+                      navigation.navigate("ContractTxSetup", {
+                        artifactId,
+                        fnIndex: fnIndex
+                      })
+                    }
+                  />
+                </Dropdown>
+              )}
+            </View>
+          ))}
+        </ScrollView>
       </SafeAreaView>
     </ScreenCover>
   );
