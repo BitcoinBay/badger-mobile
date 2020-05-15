@@ -14,6 +14,7 @@ import { getAccount } from "../data/accounts/actions";
 import { hasArtifactSelector } from "../data/artifacts/selectors";
 import { getP2SHAddress } from "../data/artifacts/actions";
 import { FullState } from "../data/store";
+import { SLP } from "../utils/slp-sdk-utils";
 
 const ScreenWrapper = styled(SafeAreaView)`
   align-items: center;
@@ -55,7 +56,9 @@ const CreateWalletScreen = ({
       getAccount();
     } else {
       if (accountAddress) {
-        getP2SHAddress(accountAddress);
+        getP2SHAddress("P2PKH", [
+          Buffer.from(SLP.Address.cashToHash160(accountAddress), "hex")
+        ]);
       }
     }
   }, [isCreated, isP2SHAddressCreated]);
