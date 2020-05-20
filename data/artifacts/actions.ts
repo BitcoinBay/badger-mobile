@@ -11,7 +11,6 @@ import {
 import {
   Artifact,
   deriveP2SH,
-  deriveSLPWallet,
   callContract
 } from "../../utils/cashscript-utils";
 
@@ -52,19 +51,15 @@ const callArtifactFail = () => ({
   payload: null
 });
 
-const getP2SHAddress = (addrString: string) => {
+const getP2SHAddress = (type: string, params: any) => {
   return async (dispatch: Function, getState: Function) => {
     dispatch(getArtifactStart());
-    const { artifact } = deriveP2SH(addrString);
-    dispatch(getArtifactSuccess(artifact));
-  };
-};
-
-const getSLPWallet = (addrString: string, type: string) => {
-  return async (dispatch: Function, getState: Function) => {
-    dispatch(getArtifactStart());
-    const { artifact } = deriveSLPWallet(addrString, type);
-    dispatch(getArtifactSuccess(artifact));
+    const artifact = deriveP2SH(type, params);
+    if(!artifact) {
+      dispatch(getArtifactFail())
+    } else {
+      dispatch(getArtifactSuccess(artifact));
+    }
   };
 };
 
@@ -87,7 +82,6 @@ export {
   getArtifactSuccess,
   getArtifactFail,
   getP2SHAddress,
-  getSLPWallet,
   clearArtifacts,
   callArtifact
 };

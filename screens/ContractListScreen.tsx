@@ -12,13 +12,14 @@ import Dialog, {
 
 import { Button, T, H2, Spacer } from "../atoms";
 
+import { compileContract } from "../utils/cashscript-utils";
+
 import {
   artifactsAllIdsSelector,
   artifactsByIdSelector
 } from "../data/artifacts/selectors";
 import { getAddressSelector } from "../data/accounts/selectors";
-
-import { getP2SHAddress, getSLPWallet } from "../data/artifacts/actions";
+import { getP2SHAddress } from "../data/artifacts/actions";
 import { FullState } from "../data/store";
 
 const ScreenCover = styled(View)`
@@ -41,13 +42,18 @@ const StyledPicker = styled(Picker)`
   width: 150px;
 `;
 
+const StyledButton = styled(Button)`
+  margin-top: 15px;
+  margin-bottom: 30px;
+`;
+
 const mapStateToProps = (state: FullState) => ({
   allArtifactIds: artifactsAllIdsSelector(state),
   artifactsById: artifactsByIdSelector(state),
   address: getAddressSelector(state)
 });
 
-const mapDispatchToProps = { getP2SHAddress, getSLPWallet };
+const mapDispatchToProps = { getP2SHAddress };
 
 const connector = connect(mapStateToProps, mapDispatchToProps);
 
@@ -56,33 +62,20 @@ type PropsFromRedux = ConnectedProps<typeof connector>;
 type Props = PropsFromParent & PropsFromRedux;
 
 const ContractListScreen = ({
-  address,
-  getP2SHAddress,
-  getSLPWallet,
   allArtifactIds,
   artifactsById,
+  address,
   navigation
 }: Props) => {
   const [showDialog, setShowDialog] = useState(false);
-  const [createContractType, setCreateContractType] = useState("SLPGenesis");
+  const [createContractType, setCreateContractType] = useState("P2PKH");
 
   const createContract = () => {
-    switch (createContractType) {
-      case "SLPGenesis":
-        getSLPWallet(address, "GENESIS");
-        break;
-      case "SLPMint":
-        getSLPWallet(address, "MINT");
-        break;
-      case "SLPSend":
-        getSLPWallet(address, "SEND");
-        break;
-      case "P2PKH":
-        getP2SHAddress(address);
-        break;
-      default:
-        break;
-    }
+    const contract = compileContract(createContractType);
+    navigation.navigate("ContractCreation", {
+      contractName: createContractType,
+      address
+    });
     setShowDialog(false);
   };
 
@@ -125,10 +118,11 @@ const ContractListScreen = ({
             selectedValue={createContractType}
             onValueChange={itemValue => setCreateContractType(itemValue)}
           >
-            <Picker.Item label="P2PKH" value="P2PKH" />
-            <Picker.Item label="SLPGenesis" value="SLPGenesis" />
-            <Picker.Item label="SLPMint" value="SLPMint" />
-            <Picker.Item label="SLPSend" value="SLPSend" />
+            <Picker.Item label="P2PKH" value={"P2PKH"} />
+            <Picker.Item label="SLPGenesis" value={"SLPGenesis"} />
+            <Picker.Item label="SLPMint" value={"SLPMint"} />
+            <Picker.Item label="SLPSend" value={"SLPSend"} />
+            <Picker.Item label="Bip38" value={"Bip38"} />
           </StyledPicker>
         </StyledDialogContent>
       </Dialog>
@@ -137,14 +131,14 @@ const ContractListScreen = ({
           height: "100%"
         }}
       >
+        <HeaderWrapper>
+          <H2>Your Contracts</H2>
+        </HeaderWrapper>
         <ScrollView
           contentContainerStyle={{
             flexGrow: 1
           }}
         >
-          <HeaderWrapper>
-            <H2>Your Contracts</H2>
-          </HeaderWrapper>
           {allArtifactIds.map(artifactId => (
             <View key={artifactId}>
               <Button
@@ -176,8 +170,13 @@ const ContractListScreen = ({
             </View>
           ))}
           <Spacer />
-          <Button onPress={() => setShowDialog(true)} text="Create Contract" />
         </ScrollView>
+        <Spacer small />
+        <Button
+          onPress={() => setShowDialog(true)}
+          text="Create Contract"
+        />
+        <Spacer tiny />
       </SafeAreaView>
     </ScreenCover>
   );

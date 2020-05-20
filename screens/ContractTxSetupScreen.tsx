@@ -31,6 +31,8 @@ import { activeAccountSelector } from "../data/accounts/selectors";
 import { utxosByAccountSelector } from "../data/utxos/selectors";
 import { artifactsByIdSelector } from "../data/artifacts/selectors";
 
+import ContractFunctionsFactory from "../components/ContractFunctionsFactory";
+
 import {
   formatAmount,
   formatAmountInput,
@@ -86,13 +88,6 @@ const connector = connect(mapStateToProps, mapDispatchToProps);
 
 type PropsFromRedux = ConnectedProps<typeof connector>;
 type Props = PropsFromParent & PropsFromRedux;
-
-const StyledTextInput = styled(TextInput)`
-  border-color: ${props => props.theme.accent500};
-  border-width: ${StyleSheet.hairlineWidth};
-  border-radius: 3px;
-  padding: 16px 8px;
-`;
 
 const StyledTextInputAmount = styled(TextInput)`
   border-color: ${props => props.theme.accent500};
@@ -174,42 +169,6 @@ const ErrorContainer = styled(View)`
   background-color: ${props => props.theme.danger700};
 `;
 
-const defaultInputValues: { [index: string]: any } = {
-  P2PKH: {
-    spend: null
-  },
-  SLPGenesis: {
-    reclaim: null,
-    SLPGenesis: {
-      ticker: "",
-      name: "",
-      url: "",
-      hash: "0x00",
-      decimal: "8",
-      mintVout: "",
-      initialSupply: "1000000"
-    }
-  },
-  SLPMint: {
-    reclaim: null,
-    SLPMint: {
-      receiveMint: "",
-      tokenId: "",
-      mintVout: "",
-      additionalSupply: "100000"
-    }
-  },
-  SLPSend: {
-    reclaim: null,
-    SLPSend: {
-      SLPReceiver: "",
-      tokenId: "",
-      sendSLPAmount: "1000",
-      changeSLPAmount: "0"
-    }
-  }
-};
-
 const ContractTxSetupScreen = ({
   navigation,
   address,
@@ -225,7 +184,21 @@ const ContractTxSetupScreen = ({
   const { contractName, abi } = artifact;
   const { name: fnName, inputs: fnInputs } = abi[fnIndex ? fnIndex : 0];
 
-  const [spendAmount, setSpendAmount] = useState("");
+  const contractPieces = ContractFunctionsFactory(contractName, fnName);
+
+  if (!contractPieces) {
+    navigation.goBack();
+    return <View></View>;
+  }
+
+  const {
+    InputsView,
+    inputsValidate,
+    defaultInputValues,
+    options
+  } = contractPieces;
+
+  const [spendAmount, setSpendAmount] = useState("0");
   const [spendAmountFiat, setSpendAmountFiat] = useState("0");
   const [spendAmountCrypto, setSpendAmountCrypto] = useState("0");
   const [amountType, setAmountType] = useState("crypto");
@@ -234,9 +207,7 @@ const ContractTxSetupScreen = ({
   );
   const [errors, setErrors] = useState<string[]>([] as string[]);
 
-  const [inputValues, setInputValues] = useState(
-    defaultInputValues[contractName][fnName]
-  );
+  const [inputValues, setInputValues] = useState(defaultInputValues(address));
 
   if (!artifactId || typeof fnIndex !== "number") {
     navigation.goBack();
@@ -340,230 +311,40 @@ const ContractTxSetupScreen = ({
   }, [amountType]);
 
   const goNextStep = useCallback(() => {
-    let hasErrors = false;
-
     const spendAmountSatoshis = new BigNumber(spendAmountCrypto).shiftedBy(
       coinDecimals
     );
+    let params = [];
+    const { hasErrors, errorMessage, parsedParams } = inputsValidate(
+      inputValues,
+      bchKeypair
+    );
+
     if (
-      (fnName === "spend" && !contractBalanceCrypto) ||
+      !contractBalanceCrypto ||
       spendAmountSatoshis.gt(contractBalanceCrypto)
     ) {
       setErrors(["Cannot spend more funds than are available"]);
-      hasErrors = true;
-    } else if (fnName === "SLPGenesis") {
-      const { ticker, name, decimal, mintVout, initialSupply } = inputValues;
-      const reMintVout = /[0-9A-Fa-f]{2}/g;
-
-      if (!ticker) {
-        setErrors(["Ticker symbol cannot be empty"]);
-        hasErrors = true;
-      }
-
-      if (!name) {
-        setErrors(["Token name cannot be empty"]);
-        hasErrors = true;
-      }
-
-      if (isNaN(decimal)) {
-        setErrors(["Number of decimals has to be a number between 0 and 255"]);
-        hasErrors = true;
-      } else {
-        const bn = new BigNumber(decimal);
-        if (!bn.isInteger()) {
-          setErrors(["Number of decimals cannot have fractions"]);
-          hasErrors = true;
-        } else if (bn.lt(0) || bn.gt(255)) {
-          setErrors([
-            "Number of decimals has to be a number between 0 and 255"
-          ]);
-          hasErrors = true;
-        }
-      }
-
-      if (mintVout && !reMintVout.test(mintVout)) {
-        setErrors(["Invalid minting baton"]);
-        hasErrors = true;
-      }
-
-      if (isNaN(initialSupply)) {
-        setErrors(["Additional Supply has to be a number"]);
-        hasErrors = true;
-      } else {
-        const bn = new BigNumber(initialSupply);
-
-        if (!bn.isInteger()) {
-          setErrors(["Additional Supply cannot have fractions"]);
-          hasErrors = true;
-        } else if (bn.isNegative()) {
-          setErrors(["Additional Supply cannot be a negative number"]);
-          hasErrors = true;
-        }
-      }
-    } else if (fnName === "SLPMint") {
-      let addressFormat = null;
-      const reMintVout = /[0-9A-Fa-f]{2}/g;
-      const reTokenId = /[0-9A-Fa-f]{64}/g;
-
-      const { receiveMint, tokenId, mintVout, additionalSupply } = inputValues;
-
-      try {
-        addressFormat = SLP.Address.detectAddressFormat(receiveMint);
-      } catch (e) {
-        setErrors(["Invalid address, double check and try again."]);
-        return;
-      }
-
-      if (!["slpaddr"].includes(addressFormat)) {
-        setErrors([
-          "Can only send SLP tokens to Simpleledger addresses.  The to address should begin with 'simpleledger:'"
-        ]);
-        hasErrors = true;
-      }
-
-      if (!tokenId) {
-        setErrors(["Token Id cannot be empty"]);
-      }
-
-      if (!reTokenId.test(tokenId)) {
-        setErrors(["Invalid Token Id"]);
-        hasErrors = true;
-      }
-
-      if (mintVout && !reMintVout.test(mintVout)) {
-        setErrors(["Invalid minting baton"]);
-        hasErrors = true;
-      }
-
-      if (isNaN(additionalSupply)) {
-        setErrors(["Additional Supply has to be a number"]);
-        hasErrors = true;
-      } else {
-        const bn = new BigNumber(additionalSupply);
-
-        if (!bn.isInteger()) {
-          setErrors(["Additional Supply cannot have fractions"]);
-          hasErrors = true;
-        } else if (bn.isNegative()) {
-          setErrors(["Additional Supply cannot be a negative number"]);
-          hasErrors = true;
-        }
-      }
-    } else if (fnName === "SLPSend") {
-      let addressFormat = null;
-      const reTokenId = /[0-9A-Fa-f]{64}/g;
-
-      const {
-        SLPReceiver,
-        tokenId,
-        sendSLPAmount,
-        changeSLPAmount
-      } = inputValues;
-      try {
-        addressFormat = SLP.Address.detectAddressFormat(SLPReceiver);
-      } catch (e) {
-        setErrors(["Invalid address, double check and try again."]);
-        return;
-      }
-
-      if (!["slpaddr"].includes(addressFormat)) {
-        setErrors([
-          "Can only send SLP tokens to Simpleledger addresses.  The to address should begin with 'simpleledger:'"
-        ]);
-        hasErrors = true;
-      }
-
-      if (!tokenId) {
-        setErrors(["Token Id cannot be empty"]);
-      }
-
-      if (!reTokenId.test(tokenId)) {
-        setErrors(["Invalid Token Id"]);
-        hasErrors = true;
-      }
-
-      if (isNaN(sendSLPAmount)) {
-        setErrors(["Additional Supply has to be a number"]);
-        hasErrors = true;
-      } else {
-        const bn = new BigNumber(sendSLPAmount);
-
-        if (!bn.isInteger()) {
-          setErrors(["Additional Supply cannot have fractions"]);
-          hasErrors = true;
-        } else if (bn.isNegative()) {
-          setErrors(["Additional Supply cannot be a negative number"]);
-          hasErrors = true;
-        }
-      }
-
-      if (isNaN(changeSLPAmount)) {
-        setErrors(["Additional Supply has to be a number"]);
-        hasErrors = true;
-      } else {
-        const bn = new BigNumber(changeSLPAmount);
-
-        if (!bn.isInteger()) {
-          setErrors(["Additional Supply cannot have fractions"]);
-          hasErrors = true;
-        } else if (bn.isNegative()) {
-          setErrors(["Additional Supply cannot be a negative number"]);
-          hasErrors = true;
-        }
-      }
+      return;
     }
 
-    if (!hasErrors) {
-      let params;
-      if (fnName === "spend" || fnName === "reclaim") {
-        params = [SLP.ECPair.toPublicKey(bchKeypair), new Sig(bchKeypair)];
+    if (options.showAmountInput && spendAmountSatoshis.lt(546)) {
+      setErrors(["There is a dust limit of 546 satoshis"]);
+      return;
+    }
+
+    if (hasErrors) {
+      setErrors(errorMessage);
+    } else {
+      if (options.requiresPk) {
+        params.push(SLP.ECPair.toPublicKey(bchKeypair));
       }
 
-      if (fnName === "SLPGenesis") {
-        let decimalBuffer = new ArrayBuffer(1);
-        new DataView(decimalBuffer).setUint8(0, inputValues.decimal);
-        let initialSupplyBuffer = new ArrayBuffer(8);
-        new DataView(initialSupplyBuffer).setBigUint64(
-          0,
-          inputValues.initialSupply
-        );
-
-        params = [
-          SLP.ECPair.toPublicKey(bchKeypair),
-          new Sig(bchKeypair),
-          Buffer.from(inputValues.ticker),
-          Buffer.from(inputValues.name),
-          Buffer.from(inputValues.url),
-          Buffer.alloc(32),
-          Buffer.from(new Uint8Array(decimalBuffer)),
-          inputValues.mintVout
-            ? Buffer.from(inputValues.mintVout, "hex")
-            : Buffer.alloc(1),
-          Buffer.from(new Uint8Array(initialSupplyBuffer))
-        ];
+      if (options.requiresSig) {
+        params.push(new Sig(bchKeypair));
       }
 
-      if (fnName === "SLPMint") {
-        let additionalSupplyBuffer = new ArrayBuffer(8);
-        new DataView(additionalSupplyBuffer).setBigUint64(
-          0,
-          inputValues.additionalSupply
-        );
-
-        params = [
-          SLP.ECPair.toPublicKey(bchKeypair),
-          new Sig(bchKeypair),
-          Buffer.from(
-            inputValues.receiveMint.replace("simpleledger:", ""),
-            "hex"
-          ),
-          Buffer.from(inputValues.tokenId, "hex"),
-          inputValues.mintVout
-            ? Buffer.from(inputValues.mintVout, "hex")
-            : Buffer.alloc(1),
-          Buffer.from(new Uint8Array(additionalSupplyBuffer))
-        ];
-      }
+      params = params.concat(parsedParams);
 
       navigation.navigate("ContractTxConfirm", {
         address,
@@ -572,7 +353,9 @@ const ContractTxSetupScreen = ({
         contractName,
         fnName,
         params,
-        spendAmountSatoshis: spendAmountSatoshis.toNumber()
+        spendAmountSatoshis: options.showAmountInput
+          ? spendAmountSatoshis.toNumber()
+          : 546
       });
     }
   }, [
@@ -580,6 +363,7 @@ const ContractTxSetupScreen = ({
     artifactId,
     artifact,
     availableFunds,
+    fnIndex,
     spendAmount,
     spendAmountCrypto
   ]);
@@ -626,200 +410,13 @@ const ContractTxSetupScreen = ({
   }, [spendAmountCrypto]);
 
   const getInputElems = useMemo(() => {
-    if (fnName === "spend" || fnName === "reclaim") {
-      return (
-        <View>
-          <T>Your Public Key</T>
-          <Spacer tiny />
-          <StyledTextInput editable={false} multiline value={address} />
-        </View>
-      );
-    } else if (fnName === "SLPGenesis") {
-      return (
-        <View>
-          <T>Ticker Symbol</T>
-          <Spacer tiny />
-          <StyledTextInput
-            editable
-            multiline
-            placeholder="ABC-DE"
-            value={inputValues["ticker"]}
-            onChangeText={text => {
-              setInputValues({ ...inputValues, ticker: text });
-            }}
-          />
-          <Spacer tiny />
-          <T>Token Name</T>
-          <Spacer tiny />
-          <StyledTextInput
-            editable
-            multiline
-            onChangeText={text =>
-              setInputValues({ ...inputValues, name: text })
-            }
-            value={inputValues["name"]}
-          />
-          <Spacer tiny />
-          <T>URL</T>
-          <Spacer tiny />
-          <StyledTextInput
-            editable
-            multiline
-            placeholder="Optional"
-            onChangeText={text => setInputValues({ ...inputValues, url: text })}
-            value={inputValues["url"]}
-          />
-          <Spacer tiny />
-          <View style={{ flexDirection: "row" }}>
-            <View style={{ flexGrow: 1 }}>
-              <T>Decimals</T>
-              <Spacer tiny />
-              <StyledTextInput
-                editable
-                multiline
-                keyboardType="numeric"
-                onChangeText={text =>
-                  setInputValues({ ...inputValues, decimal: text })
-                }
-                value={inputValues["decimal"]}
-              />
-            </View>
-            <View style={{ flexGrow: 1 }}>
-              <T>Minting Baton</T>
-              <Spacer tiny />
-              <StyledTextInput
-                editable
-                multiline
-                onChangeText={text =>
-                  setInputValues({ ...inputValues, mintVout: text })
-                }
-                value={inputValues["mintVout"]}
-              />
-            </View>
-          </View>
-          <Spacer tiny />
-          <T>Initial Supply</T>
-          <Spacer tiny />
-          <StyledTextInput
-            editable
-            multiline
-            keyboardType="numeric"
-            onChangeText={text =>
-              setInputValues({ ...inputValues, initialSupply: text })
-            }
-            value={inputValues["initialSupply"]}
-          />
-        </View>
-      );
-    } else if (fnName === "SLPMint") {
-      return (
-        <View>
-          <T>Receiver</T>
-          <Spacer tiny />
-          <StyledTextInput
-            editable
-            multiline
-            placeholder="simpleledger:"
-            onChangeText={text =>
-              setInputValues({ ...inputValues, receiveMint: text })
-            }
-            value={inputValues["receiveMint"]}
-          />
-          <Spacer tiny />
-          <T>Token Id</T>
-          <Spacer tiny />
-          <StyledTextInput
-            editable
-            multiline
-            onChangeText={text =>
-              setInputValues({ ...inputValues, tokenId: text })
-            }
-            value={inputValues["tokenId"]}
-          />
-          <Spacer tiny />
-          <T>Minting Baton</T>
-          <Spacer tiny />
-          <StyledTextInput
-            editable
-            multiline
-            onChangeText={text =>
-              setInputValues({ ...inputValues, mintVout: text })
-            }
-            value={inputValues["mintVout"]}
-          />
-          <Spacer tiny />
-          <T>Additional Supply</T>
-          <Spacer tiny />
-          <StyledTextInput
-            editable
-            multiline
-            keyboardType="numeric"
-            onChangeText={text =>
-              setInputValues({ ...inputValues, additionalSupply: text })
-            }
-            value={inputValues["additionalSupply"]}
-          />
-        </View>
-      );
-    } else if (fnName === "SLPSend") {
-      return (
-        <View>
-          <T>Your Public Key</T>
-          <Spacer tiny />
-          <StyledTextInput editable={false} multiline value={address} />
-          <T>Receiver</T>
-          <Spacer tiny />
-          <StyledTextInput
-            editable
-            multiline
-            onChangeText={text =>
-              setInputValues({ ...inputValues, SLPReceiver: text })
-            }
-            value={inputValues["SLPReceiver"]}
-          />
-          <T>Token Id</T>
-          <Spacer tiny />
-          <StyledTextInput
-            editable
-            multiline
-            onChangeText={text =>
-              setInputValues({ ...inputValues, tokenId: text })
-            }
-            value={inputValues["tokenId"]}
-          />
-          <View>
-            <View style={{ flexGrow: 1 }}>
-              <T>Send Amount</T>
-              <Spacer tiny />
-              <StyledTextInput
-                editable
-                multiline
-                keyboardType="numeric"
-                placeholder="simpleledger:"
-                onChangeText={text =>
-                  setInputValues({ ...inputValues, sendSLPAmount: text })
-                }
-                value={inputValues["sendSLPAmount"]}
-              />
-            </View>
-            <View style={{ flexGrow: 1 }}>
-              <T>Change Amount</T>
-              <Spacer tiny />
-              <StyledTextInput
-                editable
-                multiline
-                keyboardType="numeric"
-                placeholder="simpleledger:"
-                onChangeText={text =>
-                  setInputValues({ ...inputValues, changeSLPAmount: text })
-                }
-                value={inputValues["changeSLPAmount"]}
-              />
-            </View>
-          </View>
-        </View>
-      );
-    }
+    return (
+      <InputsView
+        address={address}
+        inputValues={inputValues}
+        setInputValues={setInputValues}
+      />
+    );
   }, [contractName, fnInputs, inputValues]);
 
   return (
@@ -891,7 +488,7 @@ const ContractTxSetupScreen = ({
             </View>
             <Spacer />
             {getInputElems}
-            {contractName === "P2PKH" && (
+            {options.showAmountInput && (
               <>
                 <Spacer />
                 <AmountRow>

@@ -4,6 +4,7 @@ import P2pkhArtifact from "./P2PKH.json";
 import SlpGenesisArtifact from "./SLPGenesis.json";
 import SlpMintArtifact from "./SLPMint.json";
 import SlpSendArtifact from "./SLPSend.json";
+import Bip38Artifact from "./Bip38.json";
 
 interface AbiInput {
   name: string; // Input name
@@ -36,41 +37,66 @@ interface Artifact {
   updatedAt: string; // Last datetime this artifact was updated (in ISO format)
 }
 
-
-const deriveP2SH = (addr: string) => {
-  const pkh = Buffer.from(SLP.Address.cashToHash160(addr), "hex");
-
-  const P2PKH: Contract = Contract.compile(P2pkhArtifact.source, "mainnet");
-  const instance: Instance = P2PKH.new(pkh);
-  const artifact = P2PKH.artifact;
-
-  return { artifact };
-};
-
-const deriveSLPWallet = (addr: string, type: string) => {
-  const pkh = Buffer.from(SLP.Address.cashToHash160(addr), "hex");
+const compileContract = (type: string) => {
   let artifactSource;
 
   switch (type) {
-    case "GENISIS":
+    case "P2PKH":
+      artifactSource = P2pkhArtifact.source;
+      break;
+    case "SLPGenesis":
       artifactSource = SlpGenesisArtifact.source;
       break;
-    case "MINT":
+    case "SLPMint":
       artifactSource = SlpMintArtifact.source;
       break;
-    case "SEND":
+    case "SLPSend":
       artifactSource = SlpSendArtifact.source;
       break;
+    case "Bip38Wallet":
+      artifactSource = Bip38Artifact.source;
+      break;
     default:
-      artifactSource = SlpGenesisArtifact.source;
       break;
   }
 
-  const SLPWallet: Contract = Contract.compile(artifactSource, "mainnet");
-  const instance: Instance = SLPWallet.new(pkh);
-  const artifact = SLPWallet.artifact;
+  if (!artifactSource) return null;
 
-  return { artifact };
+  const contract: Contract = Contract.compile(artifactSource, "mainnet");
+  return contract
+}
+
+const deriveP2SH = (type: string, params: any) => {
+  let artifactSource;
+
+  switch (type) {
+    case "P2PKH":
+      artifactSource = P2pkhArtifact.source;
+      break;
+    case "SLPGenesis":
+      artifactSource = SlpGenesisArtifact.source;
+      break;
+    case "SLPMint":
+      artifactSource = SlpMintArtifact.source;
+      break;
+    case "SLPSend":
+      artifactSource = SlpSendArtifact.source;
+      break;
+    case "Bip38":
+      artifactSource = Bip38Artifact.source;
+      break;
+    default:
+      break;
+  }
+
+  if (!artifactSource) return null;
+
+  const contract: Contract = Contract.compile(artifactSource, "mainnet");
+
+  const instance: Instance = contract.new(...params);
+  const artifact = contract.artifact;
+
+  return artifact;
 };
 
 const callContract = async (
@@ -101,8 +127,8 @@ export {
   AbiInput,
   AbiFunction,
   Artifact,
+  compileContract,
   deriveP2SH,
-  deriveSLPWallet,
   callContract,
   getContractBalance
 };
