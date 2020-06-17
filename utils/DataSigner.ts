@@ -1,4 +1,5 @@
-import { Script, Crypto } from "bitbox-sdk";
+// import { Script, Crypto } from "bitbox-sdk";
+import { Crypto } from "@chris.troutner/bch-js";
 import { ECPair } from "../data/accounts/reducer";
 
 export class DataSigner {

@@ -19,6 +19,21 @@ Badger Mobile Wallet is a Bitcoin Cash (BCH) and Simple Ledger Protocol (SLP) wa
   - BCH - Bitcoin Cash paper wallets
   - SLP - Simple Token paper wallets
 
+## Planned Roadmap
+
+- Cashscript Integration
+  - Contract initialized with base derived address
+  - Custom Cashscript contract creation
+- Custom REST API Endpoint
+  - Migrate from Bitbox-sdk to BCH-js
+  - Allow for rate limit increase
+- Offline Address Signing / Aggregation
+  - Signing & authenticating messages
+  - Support Schnorr signature aggregation
+- Improve Documentation / UX
+  - Map out wallet architecture
+  - Redesign UX into multi-purpose tool
+
 ## Application Overview
 
 ### Primary Technology

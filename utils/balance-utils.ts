@@ -6,7 +6,9 @@ import {
   CurrencyCode
 } from "./currency-utils";
 
+// NOTE: SLPDB seems to be a depreciated feature
 import { SLP } from "./slp-sdk-utils";
+import { bchjs } from "./bch-js-utils";
 
 // Minimal interface for what the app needs.
 // Reference the BitDB docs to access fields not listed here.
@@ -123,13 +125,17 @@ const getHistoricalSlpTransactions = async (
               "in.e.a": address.slice(12)
             },
             {
-              "slp.detail.outputs.address": SLP.Address.toSLPAddress(address)
+              "slp.detail.outputs.address": bchjs.SLP.Address.toSLPAddress(
+                address
+              )
             },
             {
               "in.e.a": SLP.Address.toSLPAddress(addressSlp)
             },
             {
-              "slp.detail.outputs.address": SLP.Address.toSLPAddress(addressSlp)
+              "slp.detail.outputs.address": bchjs.SLP.Address.toSLPAddress(
+                addressSlp
+              )
             }
           ],
           "slp.valid": true,
