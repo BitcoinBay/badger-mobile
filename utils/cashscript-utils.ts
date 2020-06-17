@@ -1,4 +1,3 @@
-import { SLP } from "./slp-sdk-utils";
 import { Contract, Instance, Sig } from "cashscript";
 import P2pkhArtifact from "./P2PKH.json";
 import SlpGenesisArtifact from "./SLPGenesis.json";
@@ -63,11 +62,12 @@ const compileContract = (type: string) => {
   if (!artifactSource) return null;
 
   const contract: Contract = Contract.compile(artifactSource, "mainnet");
-  return contract
-}
+  return contract;
+};
 
 const deriveP2SH = (type: string, params: any) => {
   let artifactSource;
+  console.log("cashscript utils", type);
 
   switch (type) {
     case "P2PKH":

@@ -25,6 +25,7 @@
     "node": ">=10.16.0"
   },
   "dependencies": {
+    "@chris.troutner/bch-js": "^3.2.0",
     "@react-native-community/async-storage": "^1.6.1",
     "@tradle/react-native-http": "^2.0.1",
     "@types/jest": "^25.1.0",

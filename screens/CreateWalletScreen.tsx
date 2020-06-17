@@ -61,6 +61,13 @@ const CreateWalletScreen = ({
         ]);
       }
     }
+    /*
+  if (isCreated) {
+    navigation.navigate("Home");
+  } else {
+    getAccount();
+  }
+*/
   }, [isCreated, isP2SHAddressCreated]);
 
   return (
