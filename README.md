@@ -149,7 +149,7 @@ yarn test
 #### `gradle.properties` Template
 
 ```bash
-MYAPP_RELEASE_STORE_FILE=badger-mobile-release.keystore
+MYAPP_RELEASE_STORE_FILE=badger-mobile-release.keystoregit update-index --assume-unchanged android/gradle.properties
 MYAPP_RELEASE_KEY_ALIAS=badger-mobile-release
 MYAPP_RELEASE_STORE_PASSWORD= - - - - - - - - - -
 MYAPP_RELEASE_KEY_PASSWORD= - - - - - - - - - -
