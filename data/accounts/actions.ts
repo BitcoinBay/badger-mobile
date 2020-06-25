@@ -35,6 +35,7 @@ const getAccountFail = () => ({
 
 const getAccount = (mnemonic?: string, accountIndex: number = 0) => {
   const accountMnemonic = mnemonic ? mnemonic : generateMnemonic();
+  console.log("Create Wallet mnemonic", accountMnemonic);
   const isNew = !mnemonic;
 
   return async (dispatch: Function, getState: Function) => {
@@ -45,19 +46,21 @@ const getAccount = (mnemonic?: string, accountIndex: number = 0) => {
 
     const childIndex = 0;
     //  TODO - Error or fail state
-    const account = deriveAccount(
+    const account = (await deriveAccount(
       accountMnemonic,
       accountIndex,
       childIndex,
       derivationPathBCH
-    ) as Account;
+    )) as Account;
 
-    const accountSlp = deriveAccount(
+    const accountSlp = (await deriveAccount(
       accountMnemonic,
       accountIndex,
       childIndex,
       derivationPathSLP
-    ) as Account;
+    )) as Account;
+
+    console.log(account);
 
     dispatch(getAccountSuccess(account, accountSlp, isNew));
   };
@@ -79,4 +82,11 @@ const viewSeed = (address: string) => {
   };
 };
 
-export { getAccount, logoutAccount, viewSeed };
+export {
+  getAccount,
+  getAccountStart,
+  getAccountSuccess,
+  getAccountFail,
+  logoutAccount,
+  viewSeed
+};

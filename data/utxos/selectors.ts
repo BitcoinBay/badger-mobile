@@ -17,6 +17,7 @@ const utxosByAccountSelector = (state: FullState, address?: string | null) => {
 const doneInitialLoadSelector = createSelector(
   utxosByAccountSelector,
   utxos => {
+    //console.log(utxos);
     return !!utxos;
   }
 );

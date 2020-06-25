@@ -17,11 +17,15 @@ import SelectCurrencyScreen from "../screens/SelectCurrencyScreen";
 import RequestScreen from "../screens/RequestScreen";
 import FAQScreen from "../screens/FAQScreen";
 import KeySweepScreen from "../screens/KeySweepScreen";
+import ContractListScreen from "../screens/ContractListScreen";
+import ContractScreen from "../screens/ContractScreen";
+import ContractCreationScreen from "../screens/ContractCreationScreen";
 
 import { ViewTermsOfUseScreen } from "../screens/TermsOfUseScreen";
 import { ViewPrivacyNoticeScreen } from "../screens/PrivacyNoticeScreen";
 
 import SendStack from "./SendStack";
+import ContractTxStack from "./ContractTxStack";
 
 import { spaceBadger as theme } from "../themes/spaceBadger";
 
@@ -46,6 +50,24 @@ const HomeStack = createStackNavigator(
       screen: RequestScreen,
       navigationOptions: {
         title: "Request"
+      }
+    },
+    ContractListScreen: {
+      screen: ContractListScreen,
+      navigationOptions: {
+        title: "Contracts"
+      }
+    },
+    ContractScreen: {
+      screen: ContractScreen,
+      navigationOptions: {
+        title: "Contract"
+      }
+    },
+    ContractCreation: {
+      screen: ContractCreationScreen,
+      navigationOptions: {
+        title: "Create Contract"
       }
     }
   },
@@ -185,6 +207,7 @@ const MainAppStack = createStackNavigator(
   {
     MainAppTabs: BottomTabNavigator,
     SendStack,
+    ContractTxStack,
     ViewPrivacyPolicy: {
       screen: ViewPrivacyNoticeScreen
     },

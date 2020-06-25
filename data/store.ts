@@ -14,6 +14,11 @@ import accountsReducer, {
   initialState as initialAccountState
 } from "./accounts/reducer";
 
+import artifactsReducer, {
+  State as StateAritfacts,
+  initialState as initialArtifactState
+} from "./artifacts/reducer";
+
 import transactionsReducer, {
   State as StateTransactions,
   initialState as initialTransactionsState
@@ -41,6 +46,7 @@ import settingsReducer, {
 
 export type FullState = {
   accounts: StateAccount;
+  artifacts: StateAritfacts;
   prices: StatePrices;
   tokens: StateTokens;
   transactions: StateTransactions;
@@ -51,6 +57,7 @@ export type FullState = {
 
 const initialState: FullState = {
   accounts: initialAccountState,
+  artifacts: initialArtifactState,
   prices: initialPricesState,
   tokens: initialTokensState,
   transactions: initialTransactionsState,
@@ -72,6 +79,13 @@ const accountsPersistConfig = {
   blacklist: ["keypairsByAccount"]
 };
 
+// temporarily setting whitelist for P2SH ID
+const artifactPersistConfig = {
+  key: "artifacts",
+  storage: AsyncStorage,
+  whitelist: ["byId", "allIds"]
+};
+
 const pricesPersistConfig = {
   key: "prices",
   storage: AsyncStorage,
@@ -80,6 +94,7 @@ const pricesPersistConfig = {
 
 const rootReducer = combineReducers({
   accounts: persistReducer(accountsPersistConfig, accountsReducer),
+  artifacts: persistReducer(artifactPersistConfig, artifactsReducer),
   prices: persistReducer(pricesPersistConfig, pricesReducer),
   tokens: tokensReducer,
   transactions: transactionsReducer,

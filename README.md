@@ -19,6 +19,21 @@ Badger Mobile Wallet is a Bitcoin Cash (BCH) and Simple Ledger Protocol (SLP) wa
   - BCH - Bitcoin Cash paper wallets
   - SLP - Simple Token paper wallets
 
+## Planned Roadmap
+
+- Cashscript Integration
+  - Contract initialized with base derived address
+  - Custom Cashscript contract creation
+- Custom REST API Endpoint
+  - Migrate from Bitbox-sdk to BCH-js
+  - Allow for rate limit increase
+- Offline Address Signing / Aggregation
+  - Signing & authenticating messages
+  - Support Schnorr signature aggregation
+- Improve Documentation / UX
+  - Map out wallet architecture
+  - Redesign UX into multi-purpose tool
+
 ## Application Overview
 
 ### Primary Technology
@@ -84,6 +99,12 @@ Navigation is managed with the `react-navigation` library. To contain the logic 
 
 This project use `react-native`. Please refer to the React Native documentation to get the iOS or Android emulator installed and running before running `badger-mobile`
 
+### Run Local Tests
+
+```bash
+yarn test
+```
+
 ### Initial Setup
 
 - [React Native Getting Started Docs](https://facebook.github.io/react-native/docs/getting-started)
@@ -143,7 +164,7 @@ This project use `react-native`. Please refer to the React Native documentation 
 #### `gradle.properties` Template
 
 ```bash
-MYAPP_RELEASE_STORE_FILE=badger-mobile-release.keystore
+MYAPP_RELEASE_STORE_FILE=badger-mobile-release.keystoregit update-index --assume-unchanged android/gradle.properties
 MYAPP_RELEASE_KEY_ALIAS=badger-mobile-release
 MYAPP_RELEASE_STORE_PASSWORD= - - - - - - - - - -
 MYAPP_RELEASE_KEY_PASSWORD= - - - - - - - - - -

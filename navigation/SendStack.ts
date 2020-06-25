@@ -7,7 +7,6 @@ import SendConfirmScreen from "../screens/SendConfirmScreen";
 import SendSuccessScreen from "../screens/SendSuccessScreen";
 import Bip70ConfirmScreen from "../screens/Bip70ConfirmScreen";
 import Bip70SuccessScreen from "../screens/Bip70SuccessScreen";
-
 import { spaceBadger as theme } from "../themes/spaceBadger";
 
 const SendStack = createStackNavigator(
