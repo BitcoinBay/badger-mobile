@@ -1,5 +1,3 @@
-// @flow
-
 import "./shim";
 
 import { AppRegistry } from "react-native";
