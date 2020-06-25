@@ -39,6 +39,11 @@ import pricesReducer, {
   initialState as initialPricesState
 } from "./prices/reducer";
 
+import restURLReducer, {
+  State as StateRestURLs,
+  initialState as initialRestURLsState
+} from "./restURLs/reducer";
+
 import settingsReducer, {
   SettingsState as StateSettings,
   initialState as initialSettingsState
@@ -52,6 +57,7 @@ export type FullState = {
   transactions: StateTransactions;
   utxos: StateUTXOS;
   settings: StateSettings;
+  restURLs: StateRestURLs;
   _persist?: PersistState;
 };
 
@@ -62,6 +68,7 @@ const initialState: FullState = {
   tokens: initialTokensState,
   transactions: initialTransactionsState,
   settings: initialSettingsState,
+  restURLs: initialRestURLsState,
   utxos: initialUTXOSState
 };
 
@@ -99,7 +106,8 @@ const rootReducer = combineReducers({
   tokens: tokensReducer,
   transactions: transactionsReducer,
   utxos: utxosReducer,
-  settings: settingsReducer
+  settings: settingsReducer,
+  restURLs: restURLsReducer
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

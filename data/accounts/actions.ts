@@ -35,7 +35,7 @@ const getAccountFail = () => ({
 
 const getAccount = (mnemonic?: string, accountIndex: number = 0) => {
   const accountMnemonic = mnemonic ? mnemonic : generateMnemonic();
-  console.log("Create Wallet mnemonic", accountMnemonic);
+  //  console.log("Create Wallet mnemonic", accountMnemonic);
   const isNew = !mnemonic;
 
   return async (dispatch: Function, getState: Function) => {
@@ -60,7 +60,7 @@ const getAccount = (mnemonic?: string, accountIndex: number = 0) => {
       derivationPathSLP
     )) as Account;
 
-    console.log(account);
+    //    console.log(account);
 
     dispatch(getAccountSuccess(account, accountSlp, isNew));
   };
