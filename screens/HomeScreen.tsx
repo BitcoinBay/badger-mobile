@@ -151,7 +151,9 @@ const HomeScreen = ({
     updateUtxos(address, addressSlp);
     const utxoInterval = setInterval(
       () => updateUtxos(address, addressSlp),
-      15 * SECOND
+      // Fullstack.cash rate limit set defaults at 3 requests per minute
+      // 15 * SECOND
+      60 * SECOND
     );
     return () => {
       clearInterval(utxoInterval);
@@ -168,7 +170,7 @@ const HomeScreen = ({
     // Update transaction history interval
     const transactionInterval = setInterval(() => {
       updateTransactions(address, addressSlp);
-    }, 30 * SECOND);
+    }, 60 * SECOND);
     return () => {
       clearInterval(transactionInterval);
     };

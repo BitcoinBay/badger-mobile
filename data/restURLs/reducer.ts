@@ -1,5 +1,11 @@
 import { AnyAction } from "redux";
 
+import {
+  GET_NODEINFO_START,
+  GET_NODEINFO_SUCCESS,
+  GET_NODEINFO_FAIL
+} from "./constants";
+
 export interface Nodeinfo {
   restURL: string;
   apiToken?: string;

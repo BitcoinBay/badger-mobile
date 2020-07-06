@@ -7,7 +7,7 @@ import {
 import { Nodeinfo } from "./reducer";
 
 const getNodeinfoStart = () => ({
-  type: GET_NODEINFO_SUCCESS,
+  type: GET_NODEINFO_START,
   payload: null
 });
 
@@ -25,7 +25,7 @@ const getNodeinfoSuccess = (restNodeInfo: Nodeinfo) => ({
 
 const getNodeinfo = (restURL: string, apiToken?: string) => {
   return async (dispatch: Function, getState: Function) => {
-    dispatch(getNodeinfoStart());
+    //    dispatch(getNodeinfoStart());
     let node = {
       restURL: restURL,
       apiToken: apiToken
