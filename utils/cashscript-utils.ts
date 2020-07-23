@@ -1,9 +1,9 @@
 import { Contract, Instance, Sig } from "cashscript";
-import P2pkhArtifact from "./P2PKH.json";
-import SlpGenesisArtifact from "./SLPGenesis.json";
-import SlpMintArtifact from "./SLPMint.json";
-import SlpSendArtifact from "./SLPSend.json";
-import Bip38Artifact from "./Bip38.json";
+import P2pkhArtifact from "./cashscript/P2PKH.json";
+import SlpGenesisArtifact from "./cashscript/SLPGenesis.json";
+import SlpMintArtifact from "./cashscript/SLPMint.json";
+import SlpSendArtifact from "./cashscript/SLPSend.json";
+import Bip38Artifact from "./cashscript/Bip38.json";
 
 interface AbiInput {
   name: string; // Input name
