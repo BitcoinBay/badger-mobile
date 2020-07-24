@@ -1,8 +1,10 @@
 import { Contract, Instance, Sig } from "cashscript";
 import P2pkhArtifact from "./cashscript/P2PKH.json";
+/*
 import SlpGenesisArtifact from "./cashscript/SLPGenesis.json";
 import SlpMintArtifact from "./cashscript/SLPMint.json";
 import SlpSendArtifact from "./cashscript/SLPSend.json";
+*/
 import Bip38Artifact from "./cashscript/Bip38.json";
 
 interface AbiInput {
@@ -36,9 +38,36 @@ interface Artifact {
   updatedAt: string; // Last datetime this artifact was updated (in ISO format)
 }
 
-const compileContract = (type: string) => {
+const selectContract = (type: string) => {
   let artifactSource;
+  switch (type) {
+    case "P2PKH":
+      artifactSource = P2pkhArtifact.source;
+      break;
+    /*
+    case "SLPGenesis":
+      artifactSource = SlpGenesisArtifact.source;
+      break;
+    case "SLPMint":
+      artifactSource = SlpMintArtifact.source;
+      break;
+    case "SLPSend":
+      artifactSource = SlpSendArtifact.source;
+      break;
+*/
+    case "Bip38":
+      artifactSource = Bip38Artifact.source;
+      break;
+    default:
+      break;
+  }
 
+  return artifactSource;
+};
+
+const compileContract = (type: string) => {
+  let artifactSource = selectContract(type);
+  /*
   switch (type) {
     case "P2PKH":
       artifactSource = P2pkhArtifact.source;
@@ -58,7 +87,7 @@ const compileContract = (type: string) => {
     default:
       break;
   }
-
+*/
   if (!artifactSource) return null;
 
   const contract: Contract = Contract.compile(artifactSource, "mainnet");
@@ -66,9 +95,8 @@ const compileContract = (type: string) => {
 };
 
 const deriveP2SH = (type: string, params: any) => {
-  let artifactSource;
-  console.log("cashscript utils", type);
-
+  let artifactSource = selectContract(type);
+  /*
   switch (type) {
     case "P2PKH":
       artifactSource = P2pkhArtifact.source;
@@ -88,7 +116,7 @@ const deriveP2SH = (type: string, params: any) => {
     default:
       break;
   }
-
+*/
   if (!artifactSource) return null;
 
   const contract: Contract = Contract.compile(artifactSource, "mainnet");

@@ -327,6 +327,12 @@ const HomeScreen = ({
               position: "relative"
             }}
           >
+            <Button
+              onPress={() => {
+                navigation.navigate("ContractListScreen");
+              }}
+              text="Cashscript  Contracts"
+            />
             <SectionList
               sections={walletSections}
               renderSectionHeader={({ section }) => (
@@ -353,12 +359,6 @@ const HomeScreen = ({
                 )
               }
               keyExtractor={(item, index) => `${index}`}
-            />
-            <Button
-              onPress={() => {
-                navigation.navigate("ContractListScreen");
-              }}
-              text="Contracts"
             />
             <Spacer />
             {!initialLoadingDone && (
