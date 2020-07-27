@@ -34,7 +34,7 @@ describe("artifacts::reducer", () => {
       expect(stateAfter).toEqual(expectedState);
     });
   });
-
+  /*
   describe("get artifact - success", () => {
     it("should get and store new artifact", () => {
       const testAddr = "bitcoincash:qqakphm6jqeteh902n59h2jct706n4srpuzp95a5qh";
@@ -60,13 +60,12 @@ describe("artifacts::reducer", () => {
         getArtifactSuccess(artifact)
       );
       expect(stateAfterOnce).toEqual(expectedState);
-      /*
       const stateAfterTwice = artifactsReducer(
         stateAfterOnce,
         getP2SHAddress(testAddr)
       );
       expect(stateAfterTwice).toEqual(expectedState);
-*/
     });
   });
+  */
 });

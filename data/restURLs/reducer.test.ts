@@ -1,4 +1,4 @@
-import restURLsReducer, { initialState } from "./reducer";
+import restURLsReducer, { initialState, Nodeinfo } from "./reducer";
 import {
   getNodeinfoStart,
   getNodeinfoFail,
@@ -27,16 +27,52 @@ describe("restURLs::reducer", () => {
     const expectedState = initialState;
     expect(stateAfter).toEqual(expectedState);
   });
-  /*
+
   it("should successfully get and store restURL", () => {
     const stateBefore = initialState;
-    const expectedState = {
+    const testURL1 = ({
+      restURL: "http://test.com/api",
+      apiToken: "testAPIToken"
+    } as unknown) as Nodeinfo;
+    const testURL2 = ({
+      restURL: "http://test2.com/api2",
+      apiToken: "testAPIToken2"
+    } as unknown) as Nodeinfo;
+    const testURL1Update = ({
+      restURL: "http://test.com/api",
+      apiToken: null
+    } as unknown) as Nodeinfo;
+
+    const expectedState1 = {
       ...initialState,
       byNodeId: {
         ...initialState.byNodeId,
-        []
-      }
-    }
+        [testURL1.restURL]: testURL1
+      },
+      allNodeIds: [...initialState.allNodeIds, testURL1.restURL],
+      activeNodeId: testURL1.restURL
+    };
+
+    const expectedState2 = {
+      ...expectedState1,
+      byNodeId: {
+        ...expectedState1.byNodeId,
+        [testURL2.restURL]: testURL2
+      },
+      allNodeIds: [...expectedState1.allNodeIds, testURL2.restURL],
+      activeNodeId: testURL2.restURL
+    };
+
+    const stateAfterOnce = restURLsReducer(
+      stateBefore,
+      getNodeinfoSuccess(testURL1)
+    );
+    expect(stateAfterOnce).toEqual(expectedState1);
+
+    const stateAfterTwice = restURLsReducer(
+      stateAfterOnce,
+      getNodeinfoSuccess(testURL2)
+    );
+    expect(stateAfterTwice).toEqual(expectedState2);
   });
-*/
 });
