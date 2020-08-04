@@ -1,5 +1,5 @@
-import { Crypto } from "bitbox-sdk";
-//import { Crypto } from "@chris.troutner/bch-js";
+//import { Crypto } from "bitbox-sdk";
+import { bchjs } from "./bch-js-utils";
 import { ECPair } from "../data/accounts/reducer";
 
 export class DataSigner {
@@ -18,6 +18,6 @@ export class DataSigner {
   }
 */
   signMessage(message: Buffer): Buffer {
-    return this.keypair.sign(new Crypto().sha256(message)).toDER();
+    return this.keypair.sign(bchjs.Crypto.sha256(message)).toDER();
   }
 }

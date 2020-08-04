@@ -52,9 +52,9 @@ const getAllUtxo = async (address: string) => {
 };
 
 const getTransactionDetails = async (txid: string | string[]) => {
-  console.log(txid);
   try {
-    const result = await bchjs.SLP.Utils.txDetails(txid);
+    const result = await SLP.Transaction.details(txid);
+    //    const result = await bchjs.SLP.Utils.txDetails(txid);
     return result;
   } catch (e) {
     throw e;
