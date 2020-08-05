@@ -67,7 +67,6 @@ describe("artifacts::reducer", () => {
         getArtifactSuccess(artifact)
       );
       expect(stateAfterOnce).toEqual(expectedState);
-
       const stateAfterTwice = artifactsReducer(
         stateAfterOnce,
         getP2SHAddress(testAddr)

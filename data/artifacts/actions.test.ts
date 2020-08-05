@@ -43,5 +43,5 @@ describe("artifacts::action", () => {
 
     expect(actions.getArtifactSuccess(artifact)).toEqual(expectedAction);
   });
-*/
+  */
 });

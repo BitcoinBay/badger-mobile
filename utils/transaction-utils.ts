@@ -52,8 +52,10 @@ const getAllUtxo = async (address: string) => {
 };
 
 const getTransactionDetails = async (txid: string | string[]) => {
+  //  console.log(txid);
   try {
     const result = await SLP.Transaction.details(txid);
+    //    BCH-JS does not yet support batch address query
     //    const result = await bchjs.SLP.Utils.txDetails(txid);
     return result;
   } catch (e) {
