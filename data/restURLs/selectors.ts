@@ -24,7 +24,7 @@ const getNodeApiToken = createSelector(activeNodeSelector, node => {
 });
 
 export {
-  activeNodeSelector,
+  activeNodeIdSelector,
   activeNodeSelector,
   getNodeApiToken,
   hasNodeApiToken,
