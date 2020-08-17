@@ -27,6 +27,8 @@ import BitcoinCashImage from "../assets/images/icon.png";
 import SLPImage from "../assets/images/slp-logo.png";
 import { FullState } from "../data/store";
 
+import OPTNWelcome3 from "../assets/images/OPTNWelcome1.png";
+
 const ToggleRow = styled(View)`
   justify-content: center;
   flex-direction: row;
@@ -161,6 +163,15 @@ const ReceiveScreen = ({ address, addressSlp, addressesArtifacts }: Props) => {
         ref={scrollRef}
       >
         <Spacer small />
+        <Image
+          source={OPTNWelcome3}
+          style={{
+            width: 350,
+            height: 150,
+            resizeMode: "contain",
+            alignItems: "center"
+          }}
+        />
         <T center>
           Scan a public key below to receive funds. Tap on a QR code to copy the
           address.

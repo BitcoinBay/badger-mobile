@@ -9,7 +9,8 @@ import {
   StyleSheet,
   SectionList,
   View,
-  TouchableOpacity
+  TouchableOpacity,
+  Image
 } from "react-native";
 import { NavigationScreenProps } from "react-navigation";
 import uuidv5 from "uuid/v5";
@@ -40,6 +41,8 @@ import {
   formatFiatAmount,
   computeFiatAmount
 } from "../utils/balance-utils";
+
+import OPTNWelcome1 from "../assets/images/OPTNWelcome1.png";
 
 const SECOND = 1000;
 
@@ -289,7 +292,8 @@ const HomeScreen = ({
     <SafeAreaView>
       <View
         style={{
-          height: "100%"
+          height: "100%",
+          alignItems: "stretch"
         }}
       >
         <ScrollView
@@ -314,6 +318,16 @@ const HomeScreen = ({
           ) : (
             <Spacer large />
           )}
+          <Image
+            source={OPTNWelcome1}
+            style={{
+              width: 350,
+              height: 150,
+              resizeMode: "contain",
+              alignItems: "center"
+            }}
+          />
+          {/*
           <H1 center spacing="loose" weight="bold">
             Badger
           </H1>
@@ -322,6 +336,7 @@ const HomeScreen = ({
             BCH and SLP wallet
           </T>
           <Spacer />
+*/}
           <View
             style={{
               position: "relative"

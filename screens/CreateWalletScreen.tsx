@@ -1,10 +1,11 @@
 import React, { useEffect } from "react";
 import styled from "styled-components";
-import { SafeAreaView, ActivityIndicator } from "react-native";
+import { SafeAreaView, ActivityIndicator, Image } from "react-native";
 import { NavigationScreenProps } from "react-navigation";
 import { connect, ConnectedProps } from "react-redux";
 
 import { Spacer, T } from "../atoms";
+import OPTNWelcome3 from "../assets/images/OPTNWelcome3.png";
 
 import {
   hasMnemonicSelector,
@@ -72,6 +73,13 @@ const CreateWalletScreen = ({
 
   return (
     <ScreenWrapper>
+      <Image
+        source={OPTNWelcome3}
+        style={{
+          width: 150,
+          height: 150
+        }}
+      />
       <ActivityIndicator />
       <Spacer />
       <T monospace>Loading Wallet...</T>

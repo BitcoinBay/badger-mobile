@@ -5,7 +5,7 @@ import styled from "styled-components";
 
 import { T, H1, H2, Spacer, Button } from "../atoms";
 
-import BadgerIcon from "../assets/images/icon-full.png";
+import OPTNWelcome3 from "../assets/images/OPTNWelcome3.png";
 
 const StyledWrapper = styled(SafeAreaView)`
   display: flex;
@@ -20,10 +20,10 @@ const WelcomeScreen = ({ navigation }: Props) => {
   return (
     <StyledWrapper>
       <Spacer />
-      <H1>Badger Wallet</H1>
+      <H1>OPTN Wallet</H1>
       <Spacer />
       <Image
-        source={BadgerIcon}
+        source={OPTNWelcome3}
         style={{
           width: 150,
           height: 150
@@ -40,7 +40,7 @@ const WelcomeScreen = ({ navigation }: Props) => {
             textAlign: "center"
           }}
         >
-          Your gateway to the world of Bitcoin Cash (BCH)
+          A Fork of Badger Mobile Wallet
         </H2>
         <Spacer small />
         <T center>Bitcoin Cash (BCH) and Simple Token (SLP) wallet </T>
