@@ -82,7 +82,7 @@ const AuthLoadingScreen = ({ navigation, mnemonic, getAccount }: Props) => {
 
       if (amountsFormatted.length > 1) {
         parseError =
-          "Badger Wallet currently only supports sending one coin at a time.  The URI is requesting multiple coins.";
+          "OPTN Wallet currently only supports sending one coin at a time.  The URI is requesting multiple coins.";
       } else if (amountsFormatted.length === 1) {
         const target = amountsFormatted[0];
         tokenId = target.tokenId;

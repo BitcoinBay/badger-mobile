@@ -1,14 +1,16 @@
 {
-  "name": "badgerMobile",
-  "version": "0.14.2",
+  "name": "optnwallet",
+  "version": "0.1.0",
   "license": "MIT",
-  "homepage": "https://badger.bitcoin.com",
+  "homepage": "https://github.com/BitcoinBay/OPTN-Wallet",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Bitcoin-com/badger-mobile.git"
+    "url": "git+https://github.com/BitcoinBay/OPTN-Wallet.git"
   },
   "author": "Pete <peter@bitcoin.com>",
-  "contributors": [],
+  "contributors": [
+    "Bitcoin Bay <info@bitcoinbay.ca>"
+  ],
   "scripts": {
     "android": "react-native run-android",
     "ios": "react-native run-ios --simulator=\"iPhone 11 Pro\"",

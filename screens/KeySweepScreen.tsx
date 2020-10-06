@@ -337,7 +337,7 @@ const KeySweepScreen = ({
                 <Spacer small />
                 <T size="small">3. Review details.</T>
                 <Spacer small />
-                <T size="small">4. Sweep to your Badger Wallet.</T>
+                <T size="small">4. Sweep to your OPTN Wallet.</T>
                 <Spacer small />
                 <T size="small">
                   5. Repeat until all BCH and tokens have been swept.

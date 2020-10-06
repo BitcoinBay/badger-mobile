@@ -82,7 +82,7 @@ const ContractCreationScreen = ({
   const [errors, setErrors] = useState<string[]>([] as string[]);
 
   const createContract = () => {
-      console.log(bchKeypair)
+    //      console.log(bchKeypair)
     const { hasErrors, errorMessage, parsedParams } = inputsValidate(
       inputValues,
       bchKeypair

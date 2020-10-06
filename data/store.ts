@@ -118,7 +118,7 @@ const Logger: Middleware = store => next => action => {
     let hours = new Date().getHours(); //To get the Current Hours
     let min = new Date().getMinutes(); //To get the Current Minutes
     let sec = new Date().getSeconds(); //To get the Current Seconds
-    console.log(hours, ":", min, ":", sec, "::LOG_ACTION::", action);
+    //    console.log(hours, ":", min, ":", sec, "::LOG_ACTION::", action);
   }
 
   return next(action);

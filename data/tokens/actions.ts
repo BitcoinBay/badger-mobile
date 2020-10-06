@@ -33,7 +33,7 @@ const updateTokensMetaFail = () => ({
 const updateTokensMeta = (tokenIds: string[]) => {
   return async (dispatch: Function, getState: Function): Promise<void> => {
     dispatch(updateTokensMetaStart());
-    console.log("data::token::actions", tokenIds);
+    //    console.log("data::token::actions", tokenIds);
 
     const transactionRequests = await Promise.all(
       chunk(tokenIds, 20).map(tokenIdChunk =>

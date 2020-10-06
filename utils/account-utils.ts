@@ -29,7 +29,7 @@ const deriveAccount = async (
   );
   const keypair = bchjs.HDNode.toKeyPair(child);
   const address = bchjs.ECPair.toCashAddress(keypair);
-  console.log("account utils address", address);
+  //  console.log("account utils address", address);
 
   return {
     mnemonic,
