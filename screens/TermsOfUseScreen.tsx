@@ -22,6 +22,10 @@ const MarkdownScrollview = styled(ScrollView)`
 
 const ToSContent = `
 
+**OPTN Wallet is a fork of Badger-Mobile Wallet, and is still in beta development. Our code is open-source, and can be found at https://github.com/BitcoinBay/OPTN-Wallet. Please refer to the existing terms and conditions below**
+
+
+
 _Our Terms of Use have been updated as of May 14, 2019_
 
 ## 1. Acceptance of Terms

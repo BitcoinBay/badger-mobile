@@ -172,6 +172,7 @@ const updateUtxos = (address: string, addressSlp: string) => {
     dispatch(updateUtxoStart());
     const state: FullState = getState();
     const utxosUpdatedFull = await refreshUtxos(state, address);
+    //    console.log("data::utxos::actions", utxosUpdatedFull);
 
     const utxosUpdatedFullSlp = await refreshUtxos(state, addressSlp);
 

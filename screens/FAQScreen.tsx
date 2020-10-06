@@ -42,18 +42,23 @@ const FAQScreen = (props: Props) => {
           flexGrow: 1
         }}
       >
-        <FAQItem title="What is Badger Wallet?">
+        <FAQItem title="Which cryptocurrencies does OPTN wallet support?">
+          <T>Bitcoin Cash (BCH) and thousands of SLP tokens.</T>
+        </FAQItem>
+        <FAQItem title="What is OPTN Wallet?">
           <T>
-            Badger Wallet is a Bitcoin Cash (BCH) and SLP token wallet, designed
+            OPTN Wallet is a Bitcoin Cash (BCH) and SLP token wallet, designed
             to prioritize simplicity for everyday use.
           </T>
           <TouchableOpacity
-            onPress={() => Linking.openURL("https://badger.bitcoin.com")}
+            onPress={() =>
+              Linking.openURL("https://github.com/BitcoinBay/OPTN-Wallet")
+            }
           >
-            <T type="accent">badger.bitcoin.com</T>
+            <T type="accent">github.com/BitcoinBay/OPTN-Wallet</T>
           </TouchableOpacity>
         </FAQItem>
-        <FAQItem title="Which cryptocurrencies does Badger wallet support?">
+        <FAQItem title="Which cryptocurrencies does OPTN wallet support?">
           <T>Bitcoin Cash (BCH) and thousands of SLP tokens.</T>
         </FAQItem>
         <FAQItem title="What is Bitcoin Cash (BCH)?">
@@ -83,9 +88,9 @@ const FAQScreen = (props: Props) => {
           </T>
 
           <TouchableOpacity
-            onPress={() => Linking.openURL("https://simpleledger.cash")}
+            onPress={() => Linking.openURL("https://simpleledger.info")}
           >
-            <T type="accent">simpleledger.cash</T>
+            <T type="accent">simpleledger.info</T>
           </TouchableOpacity>
         </FAQItem>
 
@@ -101,26 +106,26 @@ const FAQScreen = (props: Props) => {
           </T>
         </FAQItem>
 
-        <FAQItem title="How private is Badger?">
+        <FAQItem title="How private is OPTN?">
           <T>
-            Badger uses a single address for all transactions. This means
-            transactions to and from Badger can be linked together with analysis
+            OPTN uses a single address for all transactions. This means
+            transactions to and from OPTN can be linked together with analysis
             relatively easily.
           </T>
           <Spacer small />
           <T>We will make updates focused on privacy in the future.</T>
         </FAQItem>
 
-        <FAQItem title="Should I store a lot of money in Badger?">
+        <FAQItem title="Should I store a lot of money in OPTN?">
           <T>
             No. You probably shouldn't store a lot of money on any mobile
             wallet.
           </T>
           <Spacer small />
           <T>
-            Treat Badger similar to your regular wallet. Keep some BCH and
-            tokens in it for spending, but store the rest of your crypto in a
-            secure hardware wallet.
+            Treat OPTN similar to your regular wallet. Keep some BCH and tokens
+            in it for spending, but store the rest of your crypto in a secure
+            hardware wallet.
           </T>
         </FAQItem>
 

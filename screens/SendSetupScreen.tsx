@@ -477,7 +477,7 @@ const SendSetupScreen = ({
 
       if (amounts.length > 1) {
         parseError =
-          "Badger Wallet currently only supports sending one coin or token at a time.  The URI is requesting multiple coins.";
+          "OPTN Wallet currently only supports sending one coin or token at a time.  The URI is requesting multiple coins.";
       } else if (amounts.length === 1) {
         const target = amounts[0];
         uriTokenId = target.tokenId;

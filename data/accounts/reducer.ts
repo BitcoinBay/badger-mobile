@@ -58,7 +58,7 @@ const addAccount = (
   const { keypair, ...removedKeypair } = account;
   const { address } = account;
 
-  console.log("account/reducer account:", address);
+  //  console.log("account/reducer account:", address);
 
   const combinedAccount = {
     ...removedKeypair,

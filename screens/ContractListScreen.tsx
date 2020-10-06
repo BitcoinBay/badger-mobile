@@ -119,9 +119,11 @@ const ContractListScreen = ({
             onValueChange={itemValue => setCreateContractType(itemValue)}
           >
             <Picker.Item label="P2PKH" value={"P2PKH"} />
-            <Picker.Item label="SLPGenesis" value={"SLPGenesis"} />
+            {/*
+              <Picker.Item label="SLPGenesis" value={"SLPGenesis"} />
             <Picker.Item label="SLPMint" value={"SLPMint"} />
             <Picker.Item label="SLPSend" value={"SLPSend"} />
+            */}
             <Picker.Item label="Bip38" value={"Bip38"} />
           </StyledPicker>
         </StyledDialogContent>
@@ -172,10 +174,7 @@ const ContractListScreen = ({
           <Spacer />
         </ScrollView>
         <Spacer small />
-        <Button
-          onPress={() => setShowDialog(true)}
-          text="Create Contract"
-        />
+        <Button onPress={() => setShowDialog(true)} text="Create Contract" />
         <Spacer tiny />
       </SafeAreaView>
     </ScreenCover>

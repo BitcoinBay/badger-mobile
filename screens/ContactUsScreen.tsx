@@ -31,7 +31,7 @@ const ContactUsScreen = (props: Props) => {
         }}
       >
         <Spacer />
-        <T center>We hope you are enjoying Badger Wallet</T>
+        <T center>We hope you are enjoying OPTN Wallet</T>
         <Spacer small />
         <T center>
           If you wish to give feedback, ask a question, or contact us for
@@ -45,11 +45,11 @@ const ContactUsScreen = (props: Props) => {
         <Spacer tiny />
         <TouchableOpacity
           onPress={() =>
-            Linking.openURL("mailto:badger@bitcoin.com?subject=Badger Wallet")
+            Linking.openURL("mailto:info@bitcoinbay.ca?subject=OPTN Wallet")
           }
         >
           <T center size="large">
-            badger@bitcoin.com
+            info@bitcoinbay.ca
           </T>
         </TouchableOpacity>
         <Spacer />
@@ -59,11 +59,11 @@ const ContactUsScreen = (props: Props) => {
         <Spacer tiny />
         <TouchableOpacity
           onPress={() =>
-            Linking.openURL("https://t.me/joinchat/IoTQ_hGflnfwd3YJSF8cRQ")
+            Linking.openURL("https://t.me/joinchat/Ig0qehn6gq215dzUKMp2xg")
           }
         >
           <T center size="large">
-            Badger Wallet Group
+            OPTN Wallet Group
           </T>
         </TouchableOpacity>
         <Spacer />

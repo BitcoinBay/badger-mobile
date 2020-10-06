@@ -1,3 +1,10 @@
+# OPTN Wallet - Changelog
+
+## 0.1.0
+
+- Add support for CashScript contracts
+- Replace Bitbox-SDK/Rest.Bitcoin.com with BCH-JS/BCH-API
+
 # Badger Wallet - Changelog
 
 ## 0.14.1

@@ -39,6 +39,11 @@ import pricesReducer, {
   initialState as initialPricesState
 } from "./prices/reducer";
 
+import restURLsReducer, {
+  State as StateRestURLs,
+  initialState as initialRestURLsState
+} from "./restURLs/reducer";
+
 import settingsReducer, {
   SettingsState as StateSettings,
   initialState as initialSettingsState
@@ -52,6 +57,7 @@ export type FullState = {
   transactions: StateTransactions;
   utxos: StateUTXOS;
   settings: StateSettings;
+  restURLs: StateRestURLs;
   _persist?: PersistState;
 };
 
@@ -62,6 +68,7 @@ const initialState: FullState = {
   tokens: initialTokensState,
   transactions: initialTransactionsState,
   settings: initialSettingsState,
+  restURLs: initialRestURLsState,
   utxos: initialUTXOSState
 };
 
@@ -99,7 +106,8 @@ const rootReducer = combineReducers({
   tokens: tokensReducer,
   transactions: transactionsReducer,
   utxos: utxosReducer,
-  settings: settingsReducer
+  settings: settingsReducer,
+  restURLs: restURLsReducer
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
@@ -107,7 +115,10 @@ const persistedReducer = persistReducer(persistConfig, rootReducer);
 const Logger: Middleware = store => next => action => {
   if (__DEV__) {
     // Uncomment to enable debug logging
-    // console.log("::LOG_ACTION::", action);
+    let hours = new Date().getHours(); //To get the Current Hours
+    let min = new Date().getMinutes(); //To get the Current Minutes
+    let sec = new Date().getSeconds(); //To get the Current Seconds
+    //    console.log(hours, ":", min, ":", sec, "::LOG_ACTION::", action);
   }
 
   return next(action);

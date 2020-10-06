@@ -574,7 +574,7 @@ const ContractTxSetupScreen = ({
             <Spacer small />
             <Button
               nature="cautionGhost"
-              onPress={() => navigation.goBack()}
+              onPress={() => navigation.navigate("Home")}
               text="Cancel"
             />
           </ActionButtonArea>
