@@ -1,4 +1,4 @@
-import BCHJS from "@chris.troutner/bch-js";
+import BCHJS from "@psf/bch-js";
 
 const bchjs = new BCHJS({
   restURL: "https://free-main.fullstack.cash/v3/"

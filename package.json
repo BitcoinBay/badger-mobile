@@ -27,7 +27,7 @@
     "node": ">=10.16.0"
   },
   "dependencies": {
-    "@chris.troutner/bch-js": "^3.3.5",
+    "@psf/bch-js": "^3.8.8",
     "@react-native-community/async-storage": "^1.6.1",
     "@tradle/react-native-http": "^2.0.1",
     "@types/jest": "^25.1.0",
@@ -74,7 +74,7 @@
     "redux-thunk": "^2.3.0",
     "reselect": "^4.0.0",
     "slp-sdk": "~4.15.0",
-    "slpjs": "0.23.0",
+    "slpjs": "^0.27.8",
     "stream-browserify": "^2.0.2",
     "styled-components": "^4.4.1",
     "typescript": "^3.7.5",
