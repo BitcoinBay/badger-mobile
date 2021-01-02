@@ -21,7 +21,8 @@ import { Button, T, Spacer, H1, H2 } from "../atoms";
 import { getTokenImage } from "../utils/token-utils";
 import { formatFiatAmount } from "../utils/balance-utils";
 
-import { SLP } from "../utils/slp-sdk-utils";
+// import { SLP } from "../utils/slp-sdk-utils";
+import { bchjs } from "../utils/bch-js-utils";
 import { FullState } from "../data/store";
 
 const ScreenCover = styled(View)`
@@ -92,8 +93,8 @@ const SendSuccessScreen = ({
 
   const imageSource = getTokenImage(tokenId);
   const toConverted = tokenId
-    ? SLP.Address.toSLPAddress(to)
-    : SLP.Address.toCashAddress(to);
+    ? bchjs.SLP.Address.toSLPAddress(to)
+    : bchjs.SLP.Address.toCashAddress(to);
 
   // toAddress like
   // -> simpleledger:qq2addressHash

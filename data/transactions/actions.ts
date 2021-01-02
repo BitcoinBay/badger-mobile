@@ -13,7 +13,8 @@ import {
   ResultSlpDB
 } from "../../utils/balance-utils";
 
-import { SLP } from "../../utils/slp-sdk-utils";
+// import { SLP } from "../../utils/slp-sdk-utils";
+import { bchjs } from "../../utils/bch-js-utils";
 
 import { Transaction } from "./reducer";
 import { transactionsLatestBlockSelector } from "../selectors";
@@ -185,8 +186,10 @@ const updateTransactions = (address: string, addressSlp: string) => {
 
     const formattedTransactionsSLP: Transaction[] = [];
 
-    const addressSimpleledger = await SLP.Address.toSLPAddress(address);
-    const addressSlpSimpleledger = await SLP.Address.toSLPAddress(addressSlp);
+    const addressSimpleledger = await bchjs.SLP.Address.toSLPAddress(address);
+    const addressSlpSimpleledger = await bchjs.SLP.Address.toSLPAddress(
+      addressSlp
+    );
 
     for (let tx of slpHistory) {
       const block = tx?.blk?.i || 0;

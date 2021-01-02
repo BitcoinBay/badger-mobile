@@ -43,7 +43,8 @@ import { getTokenImage } from "../utils/token-utils";
 import { currencyDecimalMap } from "../utils/currency-utils";
 import { getContractBalance } from "../utils/cashscript-utils";
 
-import { SLP } from "../utils/slp-sdk-utils";
+// import { SLP } from "../utils/slp-sdk-utils";
+import { bchjs } from "../utils/bch-js-utils";
 import { FullState } from "../data/store";
 
 type PropsFromParent = NavigationScreenProps & {
@@ -229,7 +230,7 @@ const ContractTxSetupScreen = ({
     let result = new BigNumber(0);
 
     const spendableUTXOS = utxos.filter(utxo => utxo.spendable);
-    const allUTXOFee = SLP.BitcoinCash.getByteCount(
+    const allUTXOFee = bchjs.BitcoinCash.getByteCount(
       {
         P2PKH: spendableUTXOS.length
       },
@@ -337,7 +338,7 @@ const ContractTxSetupScreen = ({
       setErrors(errorMessage);
     } else {
       if (options.requiresPk) {
-        params.push(SLP.ECPair.toPublicKey(bchKeypair));
+        params.push(bchjs.ECPair.toPublicKey(bchKeypair));
       }
 
       if (options.requiresSig) {

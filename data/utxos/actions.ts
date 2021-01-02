@@ -18,6 +18,7 @@ import {
   decodeTxOut
 } from "../../utils/transaction-utils";
 import { SLP } from "../../utils/slp-sdk-utils";
+import { bchjs } from "../../utils/bch-js-utils";
 
 // Generated from `uuid` cli command
 const BADGER_UUID_NAMESPACE = "9fcd327c-41df-412f-ba45-3cc90970e680";
@@ -131,7 +132,7 @@ const refreshUtxos = async (state: FullState, address: string) => {
         const validatedTxs: {
           valid: boolean;
           txid: string;
-        }[] = await SLP.Utils.validateTxid(txIdsToValidate);
+        }[] = await bchjs.SLP.Utils.validateTxid(txIdsToValidate);
         const validSLPTxChunk = validatedTxs
           .filter(chunkResult => chunkResult.valid === true)
           .map(chunkResult => chunkResult.txid);

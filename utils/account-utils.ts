@@ -15,7 +15,7 @@ const deriveAccount = async (
   hdPathString: string
 ) => {
   if (!mnemonic) {
-    throw new Error("Mnemonic required to derive account"); // mnemonic = SLP.Mnemonic.generate(128);
+    throw new Error("Mnemonic required to derive account"); // mnemonic = bchjs.Mnemonic.generate(128);
   }
   const bitbox: BITBOX = new BITBOX({ restURL: "https://rest.bitcoin.com/v2" });
 

@@ -32,7 +32,8 @@ import {
 import { utxosByAccountSelector } from "../data/utxos/selectors";
 import { spotPricesSelector, currencySelector } from "../data/prices/selectors";
 
-import { SLP } from "../utils/slp-sdk-utils";
+// import { SLP } from "../utils/slp-sdk-utils";
+import { bchjs } from "../utils/bch-js-utils";
 import { FullState } from "../data/store";
 
 const ScreenWrapper = styled(SafeAreaView)`
@@ -175,7 +176,7 @@ const SendConfirmScreen = ({
           );
         });
         txParams = {
-          to: SLP.Address.toCashAddress(toAddress),
+          to: bchjs.SLP.Address.toCashAddress(toAddress),
           from: activeAccount.address,
           value: sendAmountParam,
           sendTokenData: {

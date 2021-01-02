@@ -5,10 +5,11 @@ import { ECPair } from "../data/accounts/reducer";
 import { TokenData } from "../data/tokens/reducer";
 
 import { SLP } from "./slp-sdk-utils";
+import { bchjs } from "./bch-js-utils";
 
 const slpjs = require("slpjs");
 
-const SLPJS = new slpjs.Slp(SLP);
+const SLPJS = new slpjs.Slp(bchjs);
 
 const LOKAD_ID_HEX = "534c5000";
 
@@ -46,13 +47,13 @@ const getSLPTxType = (scriptASMArray: string[]) => {
 };
 
 const getAllUtxo = async (address: string) => {
-  const result = await SLP.Address.utxo(address);
+  const result = await bchjs.Ninsight.utxo(address);
   return result.utxos;
 };
 
 const getTransactionDetails = async (txid: string | string[]) => {
   try {
-    const result = await SLP.Transaction.details(txid);
+    const result = await bchjs.Ninsight.txDetails(txid);
     return result;
   } catch (e) {
     throw e;
@@ -69,7 +70,7 @@ const decodeTxOut = (txOut: UTXO) => {
 
   const vout = parseInt(txOut.vout, 10);
 
-  const script = SLP.Script.toASM(
+  const script = bchjs.Script.toASM(
     Buffer.from(txOut.tx.vout[0].scriptPubKey.hex, "hex")
   ).split(" ");
 
@@ -144,7 +145,7 @@ const decodeTxOut = (txOut: UTXO) => {
 
 // Straight from Badger plugin
 const decodeTokenMetadata = (txDetails: UTXO): TokenData => {
-  const script = SLP.Script.toASM(
+  const script = bchjs.Script.toASM(
     Buffer.from(txDetails.vout[0].scriptPubKey.hex, "hex")
   ).split(" ");
   const type = getSLPTxType(script);
@@ -165,7 +166,7 @@ const decodeTokenMetadata = (txDetails: UTXO): TokenData => {
 };
 
 const encodeOpReturn = async (dataArray: string[]) => {
-  const script = [SLP.Script.opcodes.OP_RETURN];
+  const script = [bchjs.Script.opcodes.OP_RETURN];
 
   dataArray.forEach(data => {
     if (typeof data === "string" && data.substring(0, 2) === "0x") {
@@ -175,11 +176,11 @@ const encodeOpReturn = async (dataArray: string[]) => {
     }
   });
 
-  return await SLP.Script.encode(script);
+  return await bchjs.Script.encode(script);
 };
 
 const publishTx = async (hex: string) => {
-  const result = await SLP.RawTransactions.sendRawTransaction(hex);
+  const result = await bchjs.RawTransactions.sendRawTransaction(hex);
 
   try {
     if (result.length === 64) {
@@ -208,7 +209,7 @@ const signAndPublishBchTransaction = async (
       ? await encodeOpReturn(opReturn.data)
       : null;
 
-    const transactionBuilder = new SLP.TransactionBuilder("mainnet");
+    const transactionBuilder = new bcjs.TransactionBuilder("mainnet");
     const inputUtxos = [];
     let byteCount = 0;
     let totalUtxoAmount = 0;
@@ -222,7 +223,7 @@ const signAndPublishBchTransaction = async (
       totalUtxoAmount += utxo.satoshis;
       inputUtxos.push(utxo);
 
-      byteCount = SLP.BitcoinCash.getByteCount(
+      byteCount = bchjs.BitcoinCash.getByteCount(
         {
           P2PKH: inputUtxos.length
         },
@@ -372,7 +373,7 @@ const signAndPublishSlpTransaction = async (
     }
   }
 
-  const transactionBuilder = new SLP.TransactionBuilder("mainnet");
+  const transactionBuilder = new bchjs.TransactionBuilder("mainnet");
   let totalUtxoAmount = 0;
 
   inputUtxos.forEach(utxo => {
@@ -476,21 +477,21 @@ const getPaperKeypair = async (wif?: string | null) => {
     );
   }
 
-  const keypair = await SLP.ECPair.fromWIF(wif);
+  const keypair = await bchjs.ECPair.fromWIF(wif);
   return keypair;
 };
 
 const getPaperUtxos = async (keypair: ECPair): Promise<UtxosByKey> => {
   try {
     // Generate the public address associated with the private key.
-    const fromAddr: string = SLP.ECPair.toCashAddress(keypair);
+    const fromAddr: string = bchjs.ECPair.toCashAddress(keypair);
 
     // Get UTXOs associated with public address.
-    const u = await SLP.Address.utxo(fromAddr);
+    const u = await bchjs.Ninsight.utxo(fromAddr);
     const utxosAll = u.utxos as PaperUTXO[];
 
     let utxosDetails = [] as PaperUTXO[];
-    utxosDetails = await SLP.Util.tokenUtxoDetails(utxosAll);
+    utxosDetails = await bchjs.SLP.Util.tokenUtxoDetails(utxosAll);
     console.assert(
       utxosAll.length === utxosDetails.length,
       "UTXO Details and UTXOs differ in length"
@@ -554,10 +555,10 @@ const sweepPaperWallet = async (
     const hasBCH = paperBalanceKeys.includes("BCH");
 
     // Generate a keypair from the WIF
-    const keyPair = SLP.ECPair.fromWIF(wif);
-    const fromAddr: string = SLP.ECPair.toCashAddress(keyPair);
-    const transactionBuilder = new SLP.TransactionBuilder(
-      SLP.Address.detectAddressNetwork(fromAddr)
+    const keyPair = bchjs.ECPair.fromWIF(wif);
+    const fromAddr: string = bchjs.ECPair.toCashAddress(keyPair);
+    const transactionBuilder = new bchjs.TransactionBuilder(
+      bchjs.SLP.Address.detectAddressNetwork(fromAddr)
     );
 
     if (tokenId && tokenDecimals != null && hasBCH) {
@@ -631,7 +632,7 @@ const sweepPaperWallet = async (
       }
 
       // get byte count to calculate fee. paying 1.1 sat/byte
-      const byteCount: number = SLP.BitcoinCash.getByteCount(
+      const byteCount: number = bchjs.BitcoinCash.getByteCount(
         { P2PKH: bchUtxos.length },
         { P2PKH: 1 }
       );
@@ -642,7 +643,7 @@ const sweepPaperWallet = async (
 
       // add output w/ address and amount to send
       transactionBuilder.addOutput(
-        SLP.Address.toLegacyAddress(addressBch),
+        bchjs.SLP.Address.toLegacyAddress(addressBch),
         sendAmount
       );
 
@@ -665,7 +666,7 @@ const sweepPaperWallet = async (
       const hex: string = tx.toHex();
 
       // Broadcast the transaction to the BCH network.
-      txid = await SLP.RawTransactions.sendRawTransaction(hex);
+      txid = await bchjs.RawTransactions.sendRawTransaction(hex);
       return txid;
     } else if (tokenId && tokenDecimals != null && !hasBCH) {
       // SLP only sweep

@@ -8,7 +8,8 @@ import BigNumber from "bignumber.js";
 import Feather from "react-native-vector-icons/Feather";
 
 import { T } from "../../atoms";
-import { SLP } from "../../utils/slp-sdk-utils";
+// import { SLP } from "../../utils/slp-sdk-utils";
+import { bchjs } from "../../utils/bch-js-utils";
 
 export type TransactionRowTypes =
   | "send"
@@ -126,7 +127,7 @@ const TransactionRow = ({
   try {
     // Above method returns an error instead of throwing one for now.
     formattedTransactionAddress = tokenId
-      ? SLP.Address.toSLPAddress(transactionAddress)
+      ? bchjs.SLP.Address.toSLPAddress(transactionAddress)
       : transactionAddress;
 
     if (typeof formattedTransactionAddress !== "string") {
