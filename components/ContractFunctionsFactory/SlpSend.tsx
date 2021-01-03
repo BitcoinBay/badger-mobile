@@ -38,7 +38,7 @@ const constructorValidate = (inputValues: any) => {
 };
 
 const defaultConstructorValues = (address: string) => ({
-  pkh: SLP.Address.cashToHash160(address)
+  pkh: bchjs.Address.toHash160(address)
 });
 
 const ReclaimView = ({ inputValues, setInputValues, address }: Props) => {
@@ -129,7 +129,7 @@ const slpSendValidate = (inputValues: any) => {
 
   const { SLPReceiver, tokenId, sendSLPAmount, changeSLPAmount } = inputValues;
   try {
-    addressFormat = SLP.Address.detectAddressFormat(SLPReceiver);
+    addressFormat = bchjs.Address.detectAddressFormat(SLPReceiver);
   } catch (e) {
     errorMessage = ["Invalid address, double check and try again."];
     hasErrors = true;

@@ -126,14 +126,18 @@ const getHistoricalSlpTransactions = async (
             },
             {
               //            "slp.detail.outputs.address": bchjs.SLP.Address.toSLPAddress(
-              "slp.detail.outputs.address": SLP.Address.toSLPAddress(address)
+              "slp.detail.outputs.address": bchjs.SLP.Address.toSLPAddress(
+                address
+              )
             },
             {
-              "in.e.a": SLP.Address.toSLPAddress(addressSlp)
+              "in.e.a": bchjs.SLP.Address.toSLPAddress(addressSlp)
             },
             {
               //            "slp.detail.outputs.address": bchjs.SLP.Address.toSLPAddress(
-              "slp.detail.outputs.address": SLP.Address.toSLPAddress(addressSlp)
+              "slp.detail.outputs.address": bchjs.SLP.Address.toSLPAddress(
+                addressSlp
+              )
             }
           ],
           "slp.valid": true,

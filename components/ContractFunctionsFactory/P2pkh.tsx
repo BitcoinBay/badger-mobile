@@ -37,7 +37,7 @@ const constructorValidate = (inputValues: any) => {
 };
 
 const defaultConstructorValues = (address: string) => ({
-  pkh: SLP.Address.cashToHash160(address)
+  pkh: bchjs.Address.toHash160(address)
 });
 
 const SpendView = ({ address }: Props) => {

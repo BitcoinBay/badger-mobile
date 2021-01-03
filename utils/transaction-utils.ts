@@ -48,7 +48,8 @@ const getSLPTxType = (scriptASMArray: string[]) => {
 
 const getAllUtxo = async (address: string) => {
   const result = await bchjs.Ninsight.utxo(address);
-  return result.utxos;
+  // console.log(result[0].utxos);
+  return result[0].utxos;
 };
 
 const getTransactionDetails = async (txid: string | string[]) => {

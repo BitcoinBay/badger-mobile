@@ -1,7 +1,7 @@
 import { SLP } from "./slp-sdk-utils";
 import { bchjs } from "./bch-js-utils";
 import { Contract, Instance, Sig } from "cashscript";
-import { BITBOX } from "bitbox-sdk";
+// import { BITBOX } from "bitbox-sdk";
 
 const generateMnemonic = () => {
   const mnemonic = bchjs.Mnemonic.generate(128);
@@ -17,7 +17,7 @@ const deriveAccount = async (
   if (!mnemonic) {
     throw new Error("Mnemonic required to derive account"); // mnemonic = bchjs.Mnemonic.generate(128);
   }
-  const bitbox: BITBOX = new BITBOX({ restURL: "https://rest.bitcoin.com/v2" });
+  //  const bitbox: BITBOX = new BITBOX({ restURL: "https://rest.bitcoin.com/v2" });
 
   const seed = await bchjs.Mnemonic.toSeed(mnemonic);
   const hdWallet = bchjs.HDNode.fromSeed(seed, "mainnet");

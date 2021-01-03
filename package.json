@@ -41,7 +41,6 @@
     "@types/uuid": "^3.4.6",
     "asyncstorage-down": "^4.2.0",
     "bignumber.js": "^9.0.0",
-    "bitbox-sdk": "~8.11.2",
     "bitcore-payment-protocol": "git+https://github.com/vinarmani/bitcore-payment-protocol.git#new_deps",
     "cashscript": "^0.3.3",
     "ethereum-blockies-base64": "^1.0.2",

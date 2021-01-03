@@ -38,7 +38,7 @@ const constructorValidate = (inputValues: any) => {
 };
 
 const defaultConstructorValues = (address: string) => ({
-  pkh: SLP.Address.cashToHash160(address)
+  pkh: bchjs.Address.toHash160(address)
 });
 
 const ReclaimView = ({ address }: Props) => {
@@ -59,10 +59,7 @@ const reclaimValidate = () => {
   };
 };
 
-const SlpGenesisView = ({
-  inputValues,
-  setInputValues,
-}: Props) => {
+const SlpGenesisView = ({ inputValues, setInputValues }: Props) => {
   return (
     <View>
       <T>Ticker Symbol</T>
@@ -193,10 +190,7 @@ const slpGenesisValidate = (inputValues: any) => {
   let decimalBuffer = new ArrayBuffer(1);
   new DataView(decimalBuffer).setUint8(0, Number(inputValues.decimal));
   let initialSupplyBuffer = new ArrayBuffer(8);
-  new DataView(initialSupplyBuffer).setBigUint64(
-    0,
-    inputValues.initialSupply
-  );
+  new DataView(initialSupplyBuffer).setBigUint64(0, inputValues.initialSupply);
 
   const parsedParams = [
     Buffer.from(inputValues.ticker),

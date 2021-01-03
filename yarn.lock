@@ -2685,7 +2685,7 @@ bitbox-sdk@8.10.1:
     socket.io-client "^2.2.0"
     wif "^2.0.6"
 
-bitbox-sdk@^8.8.0, bitbox-sdk@~8.11.2:
+bitbox-sdk@^8.8.0:
   version "8.11.2"
   resolved "https://registry.yarnpkg.com/bitbox-sdk/-/bitbox-sdk-8.11.2.tgz#8a844be393e61f25cb3f947d3a60e4b5fdb90563"
   dependencies:
