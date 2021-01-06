@@ -1,6 +1,6 @@
 import { SLP } from "./slp-sdk-utils";
 import { bchjs } from "./bch-js-utils";
-import { Contract, Instance, Sig } from "cashscript";
+// import { Contract, Instance, Sig } from "cashscript";
 // import { BITBOX } from "bitbox-sdk";
 
 const generateMnemonic = () => {
