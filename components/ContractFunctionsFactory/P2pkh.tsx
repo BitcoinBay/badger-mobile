@@ -1,8 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 import { StyleSheet, TextInput, View } from "react-native";
 
-import { SLP } from "../../utils/slp-sdk-utils";
+import { bchjs } from "../../utils/bch-js-utils";
 import { T, Spacer } from "../../atoms";
 
 const StyledTextInput = styled(TextInput)`
@@ -41,11 +41,20 @@ const defaultConstructorValues = (address: string) => ({
 });
 
 const SpendView = ({ address }: Props) => {
+  const [toAddress, setToAddress] = useState(address || "");
+
   return (
     <View>
       <T>Your Public Key</T>
       <Spacer tiny />
-      <StyledTextInput editable={false} multiline value={address} />
+      <StyledTextInput
+        editable={true}
+        multiline
+        value={toAddress}
+        onChangeText={text => {
+          setToAddress(text);
+        }}
+      />
     </View>
   );
 };

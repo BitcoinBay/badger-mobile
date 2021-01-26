@@ -4,7 +4,7 @@ import { StyleSheet, TextInput, View } from "react-native";
 import BigNumber from "bignumber.js";
 
 import { T, Spacer } from "../../atoms";
-import { SLP } from "../../utils/slp-sdk-utils";
+import { bchjs } from "../../utils/bch-js-utils";
 
 const StyledTextInput = styled(TextInput)`
   border-color: ${props => props.theme.accent500};

@@ -44,17 +44,6 @@ const selectContract = (type: string) => {
     case "P2PKH":
       artifactSource = P2pkhArtifact.source;
       break;
-    /*
-    case "SLPGenesis":
-      artifactSource = SlpGenesisArtifact.source;
-      break;
-    case "SLPMint":
-      artifactSource = SlpMintArtifact.source;
-      break;
-    case "SLPSend":
-      artifactSource = SlpSendArtifact.source;
-      break;
-*/
     case "Bip38":
       artifactSource = Bip38Artifact.source;
       break;
@@ -67,27 +56,6 @@ const selectContract = (type: string) => {
 
 const compileContract = (type: string) => {
   let artifactSource = selectContract(type);
-  /*
-  switch (type) {
-    case "P2PKH":
-      artifactSource = P2pkhArtifact.source;
-      break;
-    case "SLPGenesis":
-      artifactSource = SlpGenesisArtifact.source;
-      break;
-    case "SLPMint":
-      artifactSource = SlpMintArtifact.source;
-      break;
-    case "SLPSend":
-      artifactSource = SlpSendArtifact.source;
-      break;
-    case "Bip38Wallet":
-      artifactSource = Bip38Artifact.source;
-      break;
-    default:
-      break;
-  }
-*/
   if (!artifactSource) return null;
 
   const contract: Contract = Contract.compile(artifactSource, "mainnet");
@@ -96,27 +64,6 @@ const compileContract = (type: string) => {
 
 const deriveP2SH = (type: string, params: any) => {
   let artifactSource = selectContract(type);
-  /*
-  switch (type) {
-    case "P2PKH":
-      artifactSource = P2pkhArtifact.source;
-      break;
-    case "SLPGenesis":
-      artifactSource = SlpGenesisArtifact.source;
-      break;
-    case "SLPMint":
-      artifactSource = SlpMintArtifact.source;
-      break;
-    case "SLPSend":
-      artifactSource = SlpSendArtifact.source;
-      break;
-    case "Bip38":
-      artifactSource = Bip38Artifact.source;
-      break;
-    default:
-      break;
-  }
-*/
   if (!artifactSource) return null;
 
   const contract: Contract = Contract.compile(artifactSource, "mainnet");

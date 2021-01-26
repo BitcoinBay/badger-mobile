@@ -7,7 +7,8 @@ import {
   View,
   ScrollView,
   TextInput,
-  StyleSheet
+  StyleSheet,
+  ActivityIndicator
 } from "react-native";
 import { NavigationScreenProps } from "react-navigation";
 
@@ -67,6 +68,7 @@ type Props = PropsFromParent & PropsFromRedux;
 const RestoreWalletScreen = ({ navigation, getAccount, isCreated }: Props) => {
   const [mnemonic, setMnemonic] = useState("");
   const [inputError, setInputError] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
     if (isCreated) {
@@ -104,6 +106,15 @@ const RestoreWalletScreen = ({ navigation, getAccount, isCreated }: Props) => {
           }}
         />
         <Spacer large />
+        {loading ? (
+          <div>
+            <ActivityIndicator />
+            <Spacer />
+            <T monospace>Loading Wallet...</T>
+          </div>
+        ) : (
+          <></>
+        )}
 
         {inputError && (
           <ErrorContainer>
@@ -122,6 +133,7 @@ const RestoreWalletScreen = ({ navigation, getAccount, isCreated }: Props) => {
 
         <Button
           onPress={() => {
+            setLoading(true);
             let errorMessage = "Double check the recovery phrase and try again";
 
             const mnemonicMessage = bchjs.Mnemonic.validate(
@@ -144,6 +156,7 @@ const RestoreWalletScreen = ({ navigation, getAccount, isCreated }: Props) => {
               errorMessage = "Seed Phrase / Mnemonic cannot be empty";
             }
 
+            setLoading(false);
             setInputError(errorMessage);
           }}
           text="Restore Wallet"

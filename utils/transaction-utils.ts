@@ -210,7 +210,7 @@ const signAndPublishBchTransaction = async (
       ? await encodeOpReturn(opReturn.data)
       : null;
 
-    const transactionBuilder = new bcjs.TransactionBuilder("mainnet");
+    const transactionBuilder = new bchjs.TransactionBuilder("mainnet");
     const inputUtxos = [];
     let byteCount = 0;
     let totalUtxoAmount = 0;

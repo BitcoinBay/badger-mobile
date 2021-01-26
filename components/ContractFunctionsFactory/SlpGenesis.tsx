@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { StyleSheet, TextInput, View } from "react-native";
 import BigNumber from "bignumber.js";
 
-import { SLP } from "../../utils/slp-sdk-utils";
+import { bchjs } from "../../utils/bch-js-utils";
 import { T, Spacer } from "../../atoms";
 
 const StyledTextInput = styled(TextInput)`
