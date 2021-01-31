@@ -107,11 +107,13 @@ const RestoreWalletScreen = ({ navigation, getAccount, isCreated }: Props) => {
         />
         <Spacer large />
         {loading ? (
-          <div>
+          <View>
             <ActivityIndicator />
             <Spacer />
-            <T monospace>Loading Wallet...</T>
-          </div>
+            <T monospace center>
+              Loading Wallet...
+            </T>
+          </View>
         ) : (
           <></>
         )}

@@ -2,6 +2,8 @@ import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { connect, ConnectedProps } from "react-redux";
 import styled from "styled-components";
 import {
+  Clipboard,
+  Dimensions,
   Image,
   KeyboardAvoidingView,
   SafeAreaView,
@@ -15,6 +17,7 @@ import _ from "lodash";
 import BigNumber from "bignumber.js";
 import { Sig } from "cashscript";
 
+import QRCodeScanner from "react-native-qrcode-scanner";
 import Ionicons from "react-native-vector-icons/Ionicons";
 
 import { T, H1, H2, Button, Spacer, SwipeButton } from "../atoms";
@@ -130,6 +133,11 @@ const StyledButton = styled(Button)`
   flex-direction: row;
 `;
 
+const ButtonArea = styled(View)`
+  flex-direction: row;
+  justify-content: space-between;
+`;
+
 const ActionButtonArea = styled(View)`
   align-items: center;
 `;
@@ -148,6 +156,19 @@ const AmountRow = styled(View)`
 const AmountInputRow = styled(View)`
   flex-direction: row;
   justify-content: space-between;
+`;
+
+const QROverlayScreen = styled(View)`
+  position: absolute;
+  padding: 0 16px;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: ${Dimensions.get("window").width}px;
+  height: ${Dimensions.get("window").height}px;
+  z-index: 1;
+  background-color: ${props => props.theme.bg900};
 `;
 
 const IconArea = styled(View)`
@@ -180,7 +201,21 @@ const ContractTxSetupScreen = ({
   fiatCurrency,
   artifacts
 }: Props) => {
-  const { artifactId, fnIndex } = navigation.state.params;
+  const {
+    artifactId,
+    fnIndex,
+    tokenId,
+    uriAddress,
+    uriAmount,
+    uriError
+  } = (navigation.state && navigation.state.params) || {
+    artifactId: null,
+    fnIndex: null,
+    tokenId: null,
+    uriAddress: null,
+    uriAmount: null,
+    uriError: null
+  };
   const artifact = artifacts[artifactId ? artifactId : ""];
   const { contractName, abi } = artifact;
   const { name: fnName, inputs: fnInputs } = abi[fnIndex ? fnIndex : 0];
@@ -198,6 +233,9 @@ const ContractTxSetupScreen = ({
     defaultInputValues,
     options
   } = contractPieces;
+
+  const [qrOpen, setQrOpen] = useState(false);
+  const [toAddress, setToAddress] = useState("");
 
   const [spendAmount, setSpendAmount] = useState("0");
   const [spendAmountFiat, setSpendAmountFiat] = useState("0");
@@ -395,6 +433,116 @@ const ContractTxSetupScreen = ({
     }
   }, [amountType, fiatRate, fiatCurrency, spendAmount]);
 
+  // Parse out address and any other relevant data
+  const parseQr = useCallback(
+    (
+      qrData: string
+    ): {
+      address: string;
+      amount?: string | null;
+      tokenId?: string | null;
+      parseError?: string | null;
+    } | null => {
+      let address = null;
+      let amount = null;
+      let uriTokenId = null;
+      let parseError = null;
+      let amounts = [] as { tokenId?: string; paramAmount: string }[];
+
+      let quitEarly = false;
+
+      const parts = qrData.split("?");
+      address = parts[0];
+      const parameters = parts[1];
+
+      if (parameters) {
+        const parameterParts = parameters.split("&");
+        parameterParts.forEach(async param => {
+          const [name, value] = param.split("=");
+
+          if (name === "r") {
+            // BIP70 detected, go to BIP70 flow
+            setToAddress("");
+            quitEarly = true;
+            navigation.navigate("Bip70Confirm", {
+              paymentURL: value
+            });
+          }
+
+          if (name.startsWith("amount")) {
+            // Parse request amount from URI
+            let currTokenId;
+            let currAmount;
+
+            if (value.includes("-")) {
+              [currAmount, currTokenId] = value.split("-");
+            } else {
+              currAmount = value;
+            }
+
+            amounts.push({
+              tokenId: currTokenId,
+              paramAmount: currAmount
+            });
+          }
+        });
+      }
+
+      if (amounts.length > 1) {
+        parseError =
+          "OPTN Wallet currently only supports sending one coin or token at a time.  The URI is requesting multiple coins.";
+      } else if (amounts.length === 1) {
+        const target = amounts[0];
+        uriTokenId = target.tokenId;
+        amount = target.paramAmount;
+      }
+
+      if (quitEarly) {
+        return null;
+      }
+
+      return {
+        address,
+        amount,
+        parseError,
+        tokenId: uriTokenId
+      };
+    },
+    [navigation]
+  );
+  const handleAddressData = useCallback(
+    (parsedData: AddressData) => {
+      setErrors([]);
+
+      // Verify the type matches the screen we are on.
+      if (parsedData.tokenId && parsedData.tokenId !== tokenId) {
+        setErrors([
+          "Sending different coin or token than selected, go to the target coin screen and try again"
+        ]);
+        return;
+      }
+
+      parsedData.parseError && setErrors([parsedData.parseError]);
+      // If there's an amount, set the type to crypto
+      parsedData.amount && setAmountType("crypto");
+
+      console.log(parsedData);
+
+      if (parsedData.address) {
+        try {
+          bchjs.SLP.Address.isCashAddress(parsedData.address) ||
+            bchjs.SLP.Address.isSLPAddress(parsedData.address);
+        } catch (e) {
+          setErrors([e.message]);
+        }
+
+        setToAddress(parsedData.address);
+      }
+      parsedData.amount && setSendAmount(parsedData.amount);
+    },
+    [tokenId]
+  );
+
   const spendAmountFiatFormatted = useMemo(() => {
     return formatFiatAmount(
       new BigNumber(spendAmountFiat),
@@ -428,6 +576,47 @@ const ContractTxSetupScreen = ({
       }}
     >
       <ScreenWrapper>
+        {qrOpen && (
+          <QROverlayScreen>
+            <Spacer small />
+            <H2 center>Scan QR Code</H2>
+            <Spacer small />
+
+            <View
+              style={{
+                height: Dimensions.get("window").width - 12
+              }}
+            >
+              <QRCodeScanner
+                cameraProps={{
+                  ratio: "1:1",
+                  captureAudio: false
+                }}
+                fadeIn={false}
+                onRead={e => {
+                  const qrData = e.data;
+                  const parsedData = parseQr(qrData);
+
+                  if (parsedData) {
+                    handleAddressData(parsedData);
+                  }
+
+                  setQrOpen(false);
+                }}
+                cameraStyle={{
+                  height: Dimensions.get("window").width - 32,
+                  width: Dimensions.get("window").width - 32
+                }}
+              />
+            </View>
+            <Spacer />
+            <Button
+              nature="cautionGhost"
+              onPress={() => setQrOpen(false)}
+              text="Cancel Scan"
+            />
+          </QROverlayScreen>
+        )}
         <ScrollView
           contentContainerStyle={{
             flexGrow: 1,
@@ -488,7 +677,38 @@ const ContractTxSetupScreen = ({
               </View>
             </View>
             <Spacer />
+
             {getInputElems}
+
+            <Spacer tiny />
+            <ButtonArea>
+              <StyledButton
+                nature="ghost"
+                onPress={async () => {
+                  const content = await Clipboard.getString();
+                  const parsedData = parseQr(content);
+
+                  if (parsedData) {
+                    handleAddressData(parsedData);
+                  }
+                }}
+              >
+                <T center spacing="loose" type="primary" size="small">
+                  <Ionicons name="ios-clipboard" size={18} /> Paste
+                </T>
+              </StyledButton>
+              <StyledButton
+                nature="ghost"
+                text="Scan QR"
+                onPress={() => setQrOpen(true)}
+              >
+                <T center spacing="loose" type="primary" size="small">
+                  <Ionicons name="ios-qr-scanner" size={18} /> Scan QR
+                </T>
+              </StyledButton>
+            </ButtonArea>
+            <Spacer />
+
             {options.showAmountInput && (
               <>
                 <Spacer />
