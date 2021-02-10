@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
-import { ScrollView, SafeAreaView, View } from "react-native";
+import { ScrollView, SafeAreaView, View, Dimensions } from "react-native";
 import { NavigationScreenProps } from "react-navigation";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
+import QRCode from "react-native-qrcode-svg";
 
 import { Button, T, H1, H2, Spacer } from "../atoms";
 
@@ -32,6 +33,14 @@ const Dropdown = styled(View)`
   padding: 10px;
 `;
 
+const QRHolder = styled(View)`
+  justify-content: center;
+  align-items: center;
+  padding: 0 16px;
+  overflow: hidden;
+  position: relative;
+`;
+
 type PropsFromParent = NavigationScreenProps & {
   navigation: {
     state?: {
@@ -47,6 +56,11 @@ type Props = PropsFromParent;
 const ContractScreen = ({ navigation }: Props) => {
   const { artifactId, artifact } = navigation.state.params;
   const { abi, contractName } = artifact;
+  const totalWidth = Dimensions.get("window").width;
+  const QRSize = totalWidth > 300 ? totalWidth * 0.6 : totalWidth * 0.7;
+
+  const [qrOpen, setQrOpen] = useState(false);
+
   const [inputDropdownsToggled, setInputDropDownsToggled] = useState(
     abi.reduce(
       (accumulatorObj: object, currentFn: any) => ({
@@ -66,6 +80,23 @@ const ContractScreen = ({ navigation }: Props) => {
       >
         <PrimaryHeaderWrapper>
           <H1>{contractName}</H1>
+          <Spacer tiny />
+          <Button
+            nature="cautionGhost"
+            onPress={() => setQrOpen(!qrOpen)}
+            text={qrOpen ? "Close QR Code" : "Open QR Code"}
+          />
+          <Spacer tiny />
+          {qrOpen && (
+            <QRHolder>
+              <QRCode
+                value={artifactId}
+                size={QRSize}
+                color="black"
+                backgroundColor="white"
+              />
+            </QRHolder>
+          )}
           <Spacer tiny />
           <T size="xsmall">{artifactId}</T>
         </PrimaryHeaderWrapper>

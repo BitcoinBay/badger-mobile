@@ -81,6 +81,7 @@ const ContractListScreen = ({
 
   return (
     <ScreenCover>
+      {console.log(address)}
       <Dialog
         onDismiss={() => setShowDialog(false)}
         visible={showDialog}
@@ -134,7 +135,7 @@ const ContractListScreen = ({
         }}
       >
         <HeaderWrapper>
-          <H2>Your Contracts</H2>
+          <H2 center>Cashscript Contracts</H2>
         </HeaderWrapper>
         <ScrollView
           contentContainerStyle={{
@@ -148,7 +149,8 @@ const ContractListScreen = ({
                 onPress={() =>
                   navigation.navigate("ContractScreen", {
                     artifactId,
-                    artifact: artifactsById[artifactId]
+                    artifact: artifactsById[artifactId],
+                    address
                   })
                 }
               >
@@ -165,7 +167,7 @@ const ContractListScreen = ({
                       defaultToAddress: artifactId
                     })
                   }
-                  text="Fund"
+                  text="Transfer from Wallet"
                 />
               </Button>
               <Spacer tiny />

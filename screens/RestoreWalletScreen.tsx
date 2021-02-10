@@ -94,7 +94,7 @@ const RestoreWalletScreen = ({ navigation, getAccount, isCreated }: Props) => {
         <Spacer large />
         <StyledTextInput
           multiline
-          editable
+          editable={!loading}
           autoCompleteType="off"
           autoCorrect={false}
           placeholder="Enter Backup Phrase / Mnemonic"
@@ -106,7 +106,7 @@ const RestoreWalletScreen = ({ navigation, getAccount, isCreated }: Props) => {
           }}
         />
         <Spacer large />
-        {loading ? (
+        {loading && (
           <View>
             <ActivityIndicator />
             <Spacer />
@@ -114,8 +114,6 @@ const RestoreWalletScreen = ({ navigation, getAccount, isCreated }: Props) => {
               Loading Wallet...
             </T>
           </View>
-        ) : (
-          <></>
         )}
 
         {inputError && (
@@ -130,6 +128,7 @@ const RestoreWalletScreen = ({ navigation, getAccount, isCreated }: Props) => {
           onPress={() => navigation.goBack()}
           text="Cancel"
           nature="cautionGhost"
+          disabled={loading}
         />
         <Spacer small />
 
@@ -161,6 +160,7 @@ const RestoreWalletScreen = ({ navigation, getAccount, isCreated }: Props) => {
             setLoading(false);
             setInputError(errorMessage);
           }}
+          disabled={loading}
           text="Restore Wallet"
         />
         <Spacer />

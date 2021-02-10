@@ -136,7 +136,7 @@ const AuthLoadingScreen = ({ navigation, mnemonic, getAccount }: Props) => {
       <InnerWrapper>
         <ActivityIndicator />
         <Spacer />
-        <T monospace>Herding Badgers</T>
+        <T monospace>Loading Wallet...</T>
       </InnerWrapper>
     </Wrapper>
   );

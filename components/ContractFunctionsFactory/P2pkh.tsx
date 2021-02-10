@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { StyleSheet, TextInput, View } from "react-native";
 
@@ -43,12 +43,17 @@ const defaultConstructorValues = (address: string) => ({
 const SpendView = ({ address }: Props) => {
   const [toAddress, setToAddress] = useState(address || "");
 
+  useEffect(() => {
+    setToAddress(address);
+  }, [address]);
+
   return (
     <View>
-      <T>Your Public Key</T>
+      <T>Send To:</T>
       <Spacer tiny />
       <StyledTextInput
         editable={true}
+        placeholder="bitcoincash:"
         multiline
         value={toAddress}
         onChangeText={text => {

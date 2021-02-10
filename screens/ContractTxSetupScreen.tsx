@@ -193,6 +193,7 @@ const ErrorContainer = styled(View)`
 
 const ContractTxSetupScreen = ({
   navigation,
+  activeAccount,
   address,
   bchKeypair,
   balances,
@@ -235,7 +236,7 @@ const ContractTxSetupScreen = ({
   } = contractPieces;
 
   const [qrOpen, setQrOpen] = useState(false);
-  const [toAddress, setToAddress] = useState("");
+  const [toAddress, setToAddress] = useState(address || "");
 
   const [spendAmount, setSpendAmount] = useState("0");
   const [spendAmountFiat, setSpendAmountFiat] = useState("0");
@@ -386,7 +387,7 @@ const ContractTxSetupScreen = ({
       params = params.concat(parsedParams);
 
       navigation.navigate("ContractTxConfirm", {
-        address,
+        toAddress,
         artifactId,
         artifact,
         contractName,
@@ -561,12 +562,12 @@ const ContractTxSetupScreen = ({
   const getInputElems = useMemo(() => {
     return (
       <InputsView
-        address={address}
+        address={toAddress}
         inputValues={inputValues}
         setInputValues={setInputValues}
       />
     );
-  }, [contractName, fnInputs, inputValues]);
+  }, [contractName, fnInputs, inputValues, toAddress]);
 
   return (
     <SafeAreaView
@@ -576,6 +577,7 @@ const ContractTxSetupScreen = ({
       }}
     >
       <ScreenWrapper>
+        {console.log(address)}
         {qrOpen && (
           <QROverlayScreen>
             <Spacer small />

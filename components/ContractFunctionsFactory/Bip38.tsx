@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { StyleSheet, TextInput, View } from "react-native";
 
@@ -36,8 +36,8 @@ const ConstructorView = ({ inputValues, setInputValues }: Props) => {
 };
 
 const constructorValidate = (inputValues: any, keypair: any) => {
-  const dataSigner = new DataSigner(keypair)
-  const pwd = dataSigner.createMessage(inputValues.userPWSig)
+  const dataSigner = new DataSigner(keypair);
+  const pwd = dataSigner.createMessage(inputValues.userPWSig);
 
   return {
     hasErrors: false,
@@ -51,11 +51,24 @@ const defaultConstructorValues = () => ({
 });
 
 const SpendView = ({ inputValues, setInputValues, address }: Props) => {
+  const [toAddress, setToAddress] = useState(address || "");
+
+  useEffect(() => {
+    setToAddress(address);
+  }, [address]);
+
   return (
     <View>
-      <T>Your Public Key</T>
+      {console.log(inputValues)}
+      <T>Send To:</T>
       <Spacer tiny />
-      <StyledTextInput editable={false} multiline value={address} />
+      <StyledTextInput
+        editable={true}
+        placeholder="bitcoincash:"
+        multiline
+        value={toAddress}
+        onChangeText={text => setToAddress(text)}
+      />
       <Spacer tiny />
       <T>Password</T>
       <Spacer tiny />

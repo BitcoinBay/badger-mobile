@@ -127,6 +127,12 @@ const ContractCreationScreen = ({
         />
         <Spacer fill />
         <Button onPress={createContract} text="Create" />
+        <Spacer small />
+        <Button
+          nature="cautionGhost"
+          onPress={() => navigation.navigate("Home")}
+          text="Cancel"
+        />
       </SafeAreaView>
     </ScreenCover>
   );

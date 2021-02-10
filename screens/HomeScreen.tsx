@@ -346,7 +346,7 @@ const HomeScreen = ({
               onPress={() => {
                 navigation.navigate("ContractListScreen");
               }}
-              text="Cashscript  Contracts"
+              text="Cashscript Contracts"
             />
             <SectionList
               sections={walletSections}

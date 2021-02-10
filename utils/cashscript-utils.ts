@@ -1,4 +1,6 @@
 import { Contract, Instance, Sig } from "cashscript";
+import bchaddr from "bchaddrjs";
+
 import P2pkhArtifact from "./cashscript/P2PKH.json";
 /*
 import SlpGenesisArtifact from "./cashscript/SLPGenesis.json";
@@ -79,14 +81,21 @@ const callContract = async (
   artifact: Artifact,
   fnName: string,
   params: Array<any>,
-  spendAmount: number
+  spendAmount: number,
+  toAddress: string
 ) => {
+  const isValidAddress = bchaddr.isValidAddress;
+  if (!isValidAddress(toAddress)) {
+    return;
+  }
+
   const contract: Contract = Contract.import(artifact, "mainnet");
   const instance: Instance = contract.deployed(artifactId);
 
   const fn = instance.functions[fnName];
+  await console.log(fn);
 
-  const tx = await fn(...params).send(instance.address, spendAmount);
+  const tx = await fn(...params).send(toAddress, spendAmount);
 
   return tx;
 };

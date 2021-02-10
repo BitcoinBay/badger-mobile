@@ -108,6 +108,7 @@ const ContractTxConfirmScreen = ({
   spotPrices
 }: Props) => {
   const {
+    toAddress,
     artifactId,
     artifact,
     contractName,
@@ -161,7 +162,8 @@ const ContractTxConfirmScreen = ({
         artifact,
         fnName,
         params,
-        spendAmountSatoshis
+        spendAmountSatoshis,
+        toAddress
       );
       navigation.replace("ContractTxSuccess", {
         artifactId,

@@ -263,52 +263,46 @@ const ReceiveScreen = ({ address, addressSlp, addressesArtifacts }: Props) => {
           <>
             <H2 center>Pay To Script Hash (P2SH)</H2>
             <Spacer tiny />
-            <T size="xsmall" center>
-              P2SH:
-            </T>
 
             {addressesArtifacts.map(({ address, name }) => (
-              <ScrollView
-                horizontal
-                decelerationRate={0}
-                snapToInterval={Dimensions.get("window").width}
-                snapToAlignment={"center"}
+              <TouchableOpacity
+                onPress={() => {
+                  if (showing === "P2SH") {
+                    Clipboard.setString(address);
+                    setCopyNotify("P2SH");
+                  }
+                }}
               >
-                <TouchableOpacity
-                  onPress={() => {
-                    if (showing === "P2SH") {
-                      Clipboard.setString(address);
-                      setCopyNotify("P2SH");
-                    }
-                  }}
-                >
-                  <HScrollableQRHolder>
-                    <T size="xsmall" center>
-                      {address ? address.split(":")[1] : " "}
-                    </T>
-                    <Spacer tiny />
+                <HScrollableQRHolder>
+                  <T size="xsmall" center>
+                    bitcoincash:
+                  </T>
+                  <T size="xsmall" center>
+                    {address ? address.split(":")[1] : " "}
+                  </T>
+                  <Spacer tiny />
 
-                    <QRCode
-                      value={address}
-                      size={QRSize}
-                      color="black"
-                      backgroundColor="white"
-                    />
-                    <Spacer tiny />
-                    <T size="small" center>
-                      {name}
-                    </T>
-                    <TypeOverlay>
-                      <TypeImage source={SLPImage} size={QRSize} />
-                    </TypeOverlay>
-                    {showing !== "P2SH" && (
-                      <QROverlay>
-                        <T>Tap to show</T>
-                      </QROverlay>
-                    )}
-                  </HScrollableQRHolder>
-                </TouchableOpacity>
-              </ScrollView>
+                  <QRCode
+                    value={address}
+                    size={QRSize}
+                    color="black"
+                    backgroundColor="white"
+                  />
+                  <Spacer tiny />
+                  <T size="small" center>
+                    {name}
+                  </T>
+                  <TypeOverlay>
+                    <TypeImage source={BitcoinCashImage} size={QRSize} />
+                  </TypeOverlay>
+                  {showing !== "P2SH" && (
+                    <QROverlay>
+                      <T>Tap to show</T>
+                    </QROverlay>
+                  )}
+                </HScrollableQRHolder>
+              </TouchableOpacity>
+              // </ScrollView>
             ))}
             <Spacer tiny />
             <T center size="small" type="primary">
